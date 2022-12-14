@@ -1,5 +1,5 @@
 use std::sync::atomic::{AtomicU16, Ordering};
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 
 use derive_new::new;
 use lazy_static::lazy_static;
@@ -23,18 +23,34 @@ pub fn get_new_id() -> u16 {
 
 lazy_static! {
     /// A map of all workers in the game indexed by their id
-    pub static ref WORKERS: Mutex<FxHashMap<u16, Worker>> = Mutex::new(hashmap! {});
+    static ref WORKERS: Mutex<FxHashMap<u16, Worker>> = Mutex::new(hashmap! {});
 }
 
-/// Calls `Worker.update()` on all workers
-pub fn update_workers() {
-    for worker in WORKERS.lock().unwrap().values_mut() {
-        worker.update();
-        worker.draw();
-    }
+/// Creates a mutable reference to the [WORKERS] map
+#[inline]
+pub fn get_workers() -> MutexGuard<'static, FxHashMap<u16, Worker>> {
+    WORKERS.lock().unwrap()
 }
 
-#[derive(Clone, new)]
+/// Creates a mutable reference to a new worker
+#[macro_export]
+macro_rules! new_worker {
+    ($name: ident) => {{
+        let index = $crate::objects::worker::Worker::new_add();
+        get_worker!($name, index);
+    }};
+}
+
+/// Creates a mutable reference to a worker with the given id
+#[macro_export]
+macro_rules! get_worker {
+    ($name: ident, $index: expr) => {
+        let mut binding = $crate::objects::worker::get_workers();
+        let $name = binding.get_mut(&$index).unwrap();
+    };
+}
+
+#[derive(Debug, Clone, new)]
 /// A worker that can be controlled by the player and can build structures
 pub struct Worker {
     #[new(value = "get_new_id()")]
@@ -85,7 +101,7 @@ impl Worker {
                     path.remove(0);
                 }
 
-                // Drawing
+                // Drawing time
                 if self.draw_path {
                     draw_line(
                         self.rect.center().x,
@@ -112,25 +128,10 @@ impl Worker {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, highlight: bool) {
         self.rect.draw(RED);
+        if highlight {
+            self.rect.draw_lines(2.0, color_u8!(255, 255, 255, 128));
+        }
     }
-}
-
-/// Creates a mutable reference to a new worker
-#[macro_export]
-macro_rules! new_worker {
-    ($name: ident) => {{
-        let index = $crate::objects::worker::Worker::new_add();
-        get_worker!($name, index);
-    }};
-}
-
-/// Creates a mutable reference to a worker with the given id
-#[macro_export]
-macro_rules! get_worker {
-    ($name: ident, $index: expr) => {
-        let mut binding = $crate::objects::worker::WORKERS.lock().unwrap();
-        let $name = binding.get_mut(&$index).unwrap();
-    };
 }

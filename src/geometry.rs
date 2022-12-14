@@ -5,7 +5,7 @@ use macroquad::prelude::{vec2, Color, Vec2};
 use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 
 /// Wrapper for a rectangle, used for collision detection and other things
-#[derive(Clone, Copy, new)]
+#[derive(Debug, Clone, Copy, new)]
 pub struct CollisionRect {
     /// The x coordinate of the top left corner of the rectangle
     x: f32,

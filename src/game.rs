@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
-use crate::objects::worker::update_workers;
+use crate::objects::worker::get_workers;
 
 lazy_static! {
     pub static ref GAME: Mutex<Game> = Mutex::new(Game::new());
@@ -27,6 +27,12 @@ pub struct Game {
 impl Game {
     pub fn update(&mut self) {
         self.player.update();
-        update_workers();
+        for worker in get_workers().values_mut() {
+            worker.update();
+        }
+    }
+
+    pub fn draw(&mut self) {
+        self.player.draw();
     }
 }

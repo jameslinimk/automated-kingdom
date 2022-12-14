@@ -1,3 +1,5 @@
+#![feature(option_result_contains)]
+
 use macroquad::window::{next_frame, Conf};
 
 use crate::game::get_game;
@@ -23,6 +25,7 @@ fn config() -> Conf {
 async fn main() {
     loop {
         get_game().update();
+        get_game().draw();
         next_frame().await;
     }
 }
