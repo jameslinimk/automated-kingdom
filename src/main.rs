@@ -2,10 +2,16 @@ use macroquad::window::{next_frame, Conf};
 
 use crate::game::get_game;
 
+pub mod astar;
+pub mod conf;
 pub mod game;
+pub mod geometry;
+pub mod map;
 pub mod math;
 pub mod objects;
+pub mod util;
 
+/// Config for the game
 fn config() -> Conf {
     Conf {
         window_title: "Futuretes".to_owned(),

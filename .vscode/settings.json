@@ -12,12 +12,18 @@
 		"**/node_modules": true
 	},
 	"cSpell.words": [
+		"astar",
 		"consts",
 		"Futuretes",
+		"hasher",
+		"hashset",
 		"homebase",
 		"keybinds",
+		"maplit",
 		"pathing",
 		"powf",
-		"rustfmt"
+		"rustc",
+		"rustfmt",
+		"uvec"
 	]
 }
