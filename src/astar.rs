@@ -42,10 +42,27 @@ fn get_neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
     add_if_valid!(0, -1);
     add_if_valid!(1, 0);
     add_if_valid!(-1, 0);
-    add_if_valid!(1, 1);
-    add_if_valid!(1, -1);
-    add_if_valid!(-1, 1);
-    add_if_valid!(-1, -1);
+
+    macro_rules! add_if_valid_diagonals {
+        ($x_diff: expr, $y_diff: expr) => {
+            if point.x as i32 + $x_diff >= 0
+                && point.y as i32 + $y_diff >= 0
+                && point.x as i32 + $x_diff < map.width as i32
+                && point.y as i32 + $y_diff < map.height as i32
+            {
+                if map.get(&uvec2((point.x as i32 + $x_diff) as u32, point.y)) == Tile::Air
+                    && map.get(&uvec2(point.x, (point.y as i32 + $y_diff) as u32)) == Tile::Air
+                {
+                    add_if_valid!($x_diff, $y_diff);
+                }
+            }
+        };
+    }
+
+    add_if_valid_diagonals!(1, 1);
+    add_if_valid_diagonals!(1, -1);
+    add_if_valid_diagonals!(-1, 1);
+    add_if_valid_diagonals!(-1, -1);
 
     children
 }

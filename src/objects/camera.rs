@@ -5,8 +5,8 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use derive_new::new;
 use macroquad::prelude::rand::gen_range;
 use macroquad::prelude::{
-    get_frame_time, get_time, is_key_down, screen_height, screen_width, set_camera, vec2, Camera2D,
-    KeyCode, Vec2,
+    get_frame_time, get_time, is_key_down, is_key_pressed, screen_height, screen_width, set_camera,
+    vec2, Camera2D, KeyCode, Vec2,
 };
 
 use crate::math::{angle, distance, ease_in_out, project};
@@ -28,6 +28,9 @@ pub struct Camera {
         ..Default::default()
     }")]
     pub camera: Camera2D,
+
+    #[new(value = "1.0")]
+    pub zoom: f32,
 
     /// Set's the target of the camera, `None` if no target is active
     /// - If active, the camera will pan to the target and will lock manual movement
@@ -51,12 +54,20 @@ pub struct Camera {
     pub speed: f32,
 
     /// Bottom right of the camera bounds, top left is always `0,0`
-    #[new(value = "Some(vec2(2000.0, 2000.0))")]
+    #[new(value = "None")]
     pub bounds: Option<Vec2>,
 }
 impl Camera {
     /// Updates the camera, should be called every frame
     pub fn update(&mut self) {
+        /* --------------------------------- Zooming -------------------------------- */
+        if is_key_pressed(KeyCode::Equal) {
+            self.increase_zoom(0.3);
+        }
+        if is_key_pressed(KeyCode::Minus) {
+            self.increase_zoom(-0.3);
+        }
+
         /* --------------------------------- Target --------------------------------- */
         if let Some(target) = self.target {
             let dis = distance(&self.camera.target, &target);
@@ -131,6 +142,16 @@ impl Camera {
         }
 
         set_camera(&self.camera);
+    }
+
+    pub fn set_zoom(&mut self, new_zoom: f32) {
+        self.zoom = new_zoom;
+        self.camera.zoom =
+            vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0) * self.zoom;
+    }
+
+    pub fn increase_zoom(&mut self, increase: f32) {
+        self.set_zoom(self.zoom + increase)
     }
 
     /// Sets the camera shake, will override any current shake
