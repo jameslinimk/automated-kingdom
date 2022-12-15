@@ -42,5 +42,6 @@ impl Game {
 
     pub fn draw(&mut self) {
         self.players[self.main_player].draw();
+        self.map.draw();
     }
 }

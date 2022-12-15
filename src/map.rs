@@ -1,5 +1,6 @@
 use derive_new::new;
-use macroquad::prelude::{uvec2, vec2, UVec2, Vec2};
+use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, WHITE};
+use macroquad::shapes::draw_rectangle;
 
 use crate::conf::SQUARE_SIZE;
 
@@ -23,6 +24,20 @@ pub struct Map {
 impl Map {
     pub fn get(&self, loc: &UVec2) -> Tile {
         self.map[loc.y as usize][loc.x as usize]
+    }
+
+    pub fn draw(&self) {
+        for (y, row) in self.map.iter().enumerate() {
+            for (x, tile) in row.iter().enumerate() {
+                let world_loc = loc_to_world(&uvec2(x as u32, y as u32));
+                match tile {
+                    Tile::Wall => {
+                        draw_rectangle(world_loc.x, world_loc.y, SQUARE_SIZE, SQUARE_SIZE, WHITE);
+                    }
+                    Tile::Air => {}
+                }
+            }
+        }
     }
 }
 

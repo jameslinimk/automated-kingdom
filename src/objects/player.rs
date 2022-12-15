@@ -4,7 +4,7 @@ use macroquad::prelude::{is_mouse_button_pressed, MouseButton};
 use crate::astar::astar;
 use crate::game::get_game;
 use crate::map::world_to_loc;
-use crate::objects::worker::{get_workers, Worker};
+use crate::objects::worker::Worker;
 use crate::util::rel_mouse_pos;
 
 #[derive(new)]
@@ -18,7 +18,7 @@ pub struct Player {
 impl Player {
     pub fn update(&mut self) {
         if is_mouse_button_pressed(MouseButton::Left) {
-            for worker in get_workers() {
+            for worker in self.workers.iter() {
                 if worker.rect.touches_point(&rel_mouse_pos()) {
                     if self.selected_worker.contains(&worker.id) {
                         self.selected_worker = None;
@@ -48,7 +48,7 @@ impl Player {
     }
 
     pub fn draw(&mut self) {
-        for worker in get_workers() {
+        for worker in self.workers.iter() {
             if self.workers.contains(worker) {
                 worker.draw(self.selected_worker.contains(&worker.id));
             }
