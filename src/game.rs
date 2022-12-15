@@ -1,38 +1,42 @@
-use std::sync::{Mutex, MutexGuard};
-
 use derive_new::new;
-use lazy_static::lazy_static;
 
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
 use crate::objects::worker::get_workers;
 
-lazy_static! {
-    pub static ref GAME: Mutex<Game> = Mutex::new(Game::new());
-}
+static mut GAME: Option<Game> = None;
 
-/// Returns the global [Game] object as a [MutexGuard]
-pub fn get_game() -> MutexGuard<'static, Game> {
-    GAME.lock().unwrap()
+/// Returns the global [Game] object as a mutable reference
+pub fn get_game() -> &'static mut Game {
+    unsafe {
+        if GAME.is_none() {
+            GAME = Some(Game::new());
+        }
+        GAME.as_mut().unwrap()
+    }
 }
 
 #[derive(new)]
 pub struct Game {
-    #[new(value = "Player::new()")]
-    pub player: Player,
+    #[new(value = "vec![Player::new()]")]
+    pub players: Vec<Player>,
+
+    #[new(value = "0")]
+    pub main_player: usize,
 
     #[new(value = "Camera::new()")]
     pub camera: Camera,
 }
 impl Game {
     pub fn update(&mut self) {
-        self.player.update();
+        self.players[self.main_player].update();
+        self.camera.update();
         for worker in get_workers().values_mut() {
             worker.update();
         }
     }
 
     pub fn draw(&mut self) {
-        self.player.draw();
+        self.players[self.main_player].draw();
     }
 }

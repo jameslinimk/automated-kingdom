@@ -1,3 +1,4 @@
+use std::slice::Iter;
 use std::sync::atomic::{AtomicU16, Ordering};
 use std::sync::{Mutex, MutexGuard};
 
@@ -11,6 +12,7 @@ use rustc_hash::FxHashMap;
 
 use crate::astar::path_time;
 use crate::conf::{get_font_small, SQUARE_SIZE};
+use crate::game::get_game;
 use crate::geometry::CollisionRect;
 use crate::hashmap;
 use crate::math::{angle, distance, project};
@@ -26,28 +28,13 @@ lazy_static! {
     static ref WORKERS: Mutex<FxHashMap<u16, Worker>> = Mutex::new(hashmap! {});
 }
 
-/// Creates a mutable reference to the [WORKERS] map
 #[inline]
-pub fn get_workers() -> MutexGuard<'static, FxHashMap<u16, Worker>> {
-    WORKERS.lock().unwrap()
-}
-
-/// Creates a mutable reference to a new worker
-#[macro_export]
-macro_rules! new_worker {
-    ($name: ident) => {{
-        let index = $crate::objects::worker::Worker::new_add();
-        get_worker!($name, index);
-    }};
-}
-
-/// Creates a mutable reference to a worker with the given id
-#[macro_export]
-macro_rules! get_worker {
-    ($name: ident, $index: expr) => {
-        let mut binding = $crate::objects::worker::get_workers();
-        let $name = binding.get_mut(&$index).unwrap();
-    };
+pub fn get_workers() -> Iter<'static, Worker> {
+    let mut temp = vec![].iter();
+    for player in get_game().players.iter() {
+        temp.chain(player.workers.iter());
+    }
+    temp
 }
 
 #[derive(Debug, Clone, new)]
@@ -75,14 +62,6 @@ pub struct Worker {
     pub draw_path: bool,
 }
 impl Worker {
-    /// Creates a new worker and adds it to the global [WORKERS] map. Returns the worker's id
-    pub fn new_add() -> u16 {
-        let worker = Worker::new();
-        let id = worker.id;
-        WORKERS.lock().unwrap().insert(worker.id, worker);
-        id
-    }
-
     pub fn update(&mut self) {
         /* --------------------------------- Pathing -------------------------------- */
         if let Some(path) = &mut self.path {
@@ -131,7 +110,7 @@ impl Worker {
     pub fn draw(&self, highlight: bool) {
         self.rect.draw(RED);
         if highlight {
-            self.rect.draw_lines(2.0, color_u8!(255, 255, 255, 128));
+            self.rect.draw_lines(5.0, color_u8!(255, 255, 255, 200));
         }
     }
 }

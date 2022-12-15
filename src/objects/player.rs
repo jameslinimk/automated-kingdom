@@ -1,5 +1,6 @@
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_down, MouseButton};
+use macroquad::time::get_frame_time;
 use rustc_hash::FxHashSet;
 
 use crate::hashset;
@@ -8,14 +9,16 @@ use crate::util::rel_mouse_pos;
 
 #[derive(new)]
 pub struct Player {
-    #[new(value = "hashset![Worker::new_add()]")]
-    pub workers: FxHashSet<u16>,
+    #[new(value = "vec![Worker::new()]")]
+    pub workers: Vec<Worker>,
 
     #[new(value = "None")]
     pub selected_worker: Option<u16>,
 }
 impl Player {
     pub fn update(&mut self) {
+        println!("{}", get_frame_time());
+
         if is_mouse_button_down(MouseButton::Left) {
             for worker in get_workers().values() {
                 if worker.rect.touches_point(&rel_mouse_pos()) {
