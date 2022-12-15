@@ -1,10 +1,7 @@
 use derive_new::new;
-use macroquad::prelude::{is_mouse_button_down, MouseButton};
-use macroquad::time::get_frame_time;
-use rustc_hash::FxHashSet;
+use macroquad::prelude::{is_mouse_button_pressed, MouseButton};
 
-use crate::hashset;
-use crate::objects::worker::{get_workers, Worker};
+use crate::objects::worker::{get_workers, get_workers_mut, Worker};
 use crate::util::rel_mouse_pos;
 
 #[derive(new)]
@@ -17,21 +14,34 @@ pub struct Player {
 }
 impl Player {
     pub fn update(&mut self) {
-        println!("{}", get_frame_time());
-
-        if is_mouse_button_down(MouseButton::Left) {
-            for worker in get_workers().values() {
+        if is_mouse_button_pressed(MouseButton::Left) {
+            for worker in get_workers() {
                 if worker.rect.touches_point(&rel_mouse_pos()) {
-                    self.selected_worker = Some(worker.id);
+                    if self.selected_worker.contains(&worker.id) {
+                        self.selected_worker = None;
+                    } else {
+                        self.selected_worker = Some(worker.id);
+                    }
                     break;
+                }
+            }
+        }
+
+        if is_mouse_button_pressed(MouseButton::Right) {
+            if let Some(worker) = self.selected_worker {
+                for w in get_workers_mut() {
+                    if w.id == worker {
+                        w.path = Some(vec![rel_mouse_pos()]);
+                        break;
+                    }
                 }
             }
         }
     }
 
     pub fn draw(&mut self) {
-        for worker in get_workers().values() {
-            if self.workers.contains(&worker.id) {
+        for worker in get_workers() {
+            if self.workers.contains(worker) {
                 worker.draw(self.selected_worker.contains(&worker.id));
             }
         }

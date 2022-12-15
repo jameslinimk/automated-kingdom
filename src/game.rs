@@ -2,7 +2,7 @@ use derive_new::new;
 
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
-use crate::objects::worker::get_workers;
+use crate::objects::worker::get_workers_mut;
 
 static mut GAME: Option<Game> = None;
 
@@ -31,7 +31,7 @@ impl Game {
     pub fn update(&mut self) {
         self.players[self.main_player].update();
         self.camera.update();
-        for worker in get_workers().values_mut() {
+        for worker in get_workers_mut() {
             worker.update();
         }
     }

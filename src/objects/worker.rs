@@ -1,6 +1,5 @@
-use std::slice::Iter;
 use std::sync::atomic::{AtomicU16, Ordering};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::Mutex;
 
 use derive_new::new;
 use lazy_static::lazy_static;
@@ -19,6 +18,8 @@ use crate::math::{angle, distance, project};
 use crate::util::draw_centered_text;
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
+/// Returns a new id for the global id system
+#[inline]
 pub fn get_new_id() -> u16 {
     GLOBAL_ID.fetch_add(1, Ordering::Relaxed)
 }
@@ -28,17 +29,23 @@ lazy_static! {
     static ref WORKERS: Mutex<FxHashMap<u16, Worker>> = Mutex::new(hashmap! {});
 }
 
+/// Returns an iterator over all workers in the game
 #[inline]
-pub fn get_workers() -> Iter<'static, Worker> {
-    let mut temp = vec![].iter();
-    for player in get_game().players.iter() {
-        temp.chain(player.workers.iter());
-    }
-    temp
+pub fn get_workers() -> impl Iterator<Item = &'static Worker> {
+    get_game().players.iter().flat_map(|p| p.workers.iter())
 }
 
-#[derive(Debug, Clone, new)]
+/// Returns a mutable iterator over all workers in the game
+#[inline]
+pub fn get_workers_mut() -> impl Iterator<Item = &'static mut Worker> {
+    get_game()
+        .players
+        .iter_mut()
+        .flat_map(|p| p.workers.iter_mut())
+}
+
 /// A worker that can be controlled by the player and can build structures
+#[derive(Debug, Clone, new)]
 pub struct Worker {
     #[new(value = "get_new_id()")]
     pub id: u16,
@@ -58,8 +65,14 @@ pub struct Worker {
     #[new(value = "500.0")]
     pub speed: f32,
 
+    /// Whether or not to draw the path and time to the complete
     #[new(value = "true")]
     pub draw_path: bool,
+}
+impl PartialEq for Worker {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
 }
 impl Worker {
     pub fn update(&mut self) {
