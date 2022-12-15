@@ -95,24 +95,26 @@ impl Worker {
 
                 // Drawing time
                 if self.draw_path {
-                    draw_line(
-                        self.rect.center().x,
-                        self.rect.center().y,
-                        next_pos.x,
-                        next_pos.y,
-                        2.5,
-                        color_u8!(128, 128, 128, 128),
-                    );
+                    if let Some(end_pos) = path.last() {
+                        draw_line(
+                            self.rect.center().x,
+                            self.rect.center().y,
+                            end_pos.x,
+                            end_pos.y,
+                            2.5,
+                            color_u8!(128, 128, 128, 128),
+                        );
 
-                    let time = path_time(&self.rect.center(), self.speed, path);
-                    draw_centered_text(
-                        &format!("{:.2}", time),
-                        self.rect.center().x,
-                        self.rect.top(),
-                        get_font_small(),
-                        17.0,
-                        WHITE,
-                    );
+                        let time = path_time(&self.rect.center(), self.speed, path);
+                        draw_centered_text(
+                            &format!("{:.2}", time),
+                            self.rect.center().x,
+                            self.rect.top(),
+                            get_font_small(),
+                            17.0,
+                            WHITE,
+                        );
+                    }
                 }
             } else {
                 self.path = None;

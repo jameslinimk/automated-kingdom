@@ -1,5 +1,8 @@
+use std::hash::BuildHasherDefault;
+
 use macroquad::prelude::{uvec2, UVec2, Vec2};
 use priority_queue::PriorityQueue;
+use rustc_hash::FxHasher;
 
 use crate::hashmap;
 use crate::map::{loc_to_world, Map, Tile};
@@ -49,10 +52,11 @@ fn get_neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
 
 /// Returns a path from start to goal using the A* algorithm, or `None` if no path is found
 pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
+    println!("(start, goal): {:?}", (start, goal));
+
     let mut parents = hashmap! {};
     let mut costs = hashmap! {};
-    let mut priority_queue = PriorityQueue::new();
-    let mut path = vec![];
+    let mut priority_queue = PriorityQueue::<UVec2, u32, BuildHasherDefault<FxHasher>>::default();
     let mut current = *start;
 
     priority_queue.push(current, 0);
@@ -70,12 +74,14 @@ pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
             if !costs.contains_key(neighbor) || new_cost < costs[neighbor] {
                 costs.insert(*neighbor, new_cost);
                 let priority = u32::MAX - (new_cost + manhattan_distance(neighbor, goal));
+
                 priority_queue.push(*neighbor, priority);
                 parents.insert(*neighbor, current);
             }
         }
     }
 
+    let mut path = vec![];
     if costs.contains_key(goal) {
         while current != *start {
             path.push(loc_to_world(&current));
@@ -94,7 +100,7 @@ pub fn path_time(current_pos: &Vec2, speed: f32, path: &[Vec2]) -> f32 {
     let mut time = 0.0;
     if !path.is_empty() {
         time += distance(current_pos, &path[0]);
-        for i in 1..path.len() {
+        for i in 1..path.len() - 1 {
             let dist = distance(&path[i], &path[i + 1]);
             time += dist;
         }

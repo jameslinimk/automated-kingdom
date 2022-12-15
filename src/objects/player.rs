@@ -1,7 +1,10 @@
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_pressed, MouseButton};
 
-use crate::objects::worker::{get_workers, get_workers_mut, Worker};
+use crate::astar::astar;
+use crate::game::get_game;
+use crate::map::world_to_loc;
+use crate::objects::worker::{get_workers, Worker};
 use crate::util::rel_mouse_pos;
 
 #[derive(new)]
@@ -28,10 +31,15 @@ impl Player {
         }
 
         if is_mouse_button_pressed(MouseButton::Right) {
-            if let Some(worker) = self.selected_worker {
-                for w in get_workers_mut() {
-                    if w.id == worker {
-                        w.path = Some(vec![rel_mouse_pos()]);
+            if let Some(id) = self.selected_worker {
+                for worker in self.workers.iter_mut() {
+                    if worker.id == id {
+                        let path = astar(
+                            &world_to_loc(&worker.rect.center()),
+                            &world_to_loc(&rel_mouse_pos()),
+                            &get_game().map,
+                        );
+                        worker.path = path;
                         break;
                     }
                 }

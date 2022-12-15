@@ -1,5 +1,6 @@
 use derive_new::new;
 
+use crate::map::Map;
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
 use crate::objects::worker::get_workers_mut;
@@ -26,6 +27,9 @@ pub struct Game {
 
     #[new(value = "Camera::new()")]
     pub camera: Camera,
+
+    #[new(value = "Map::new()")]
+    pub map: Map,
 }
 impl Game {
     pub fn update(&mut self) {
