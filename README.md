@@ -1,4 +1,4 @@
-# Futuretes (WIP)
+# Automated Kingdom
 
 Multiplayer top down game written in rust and using macroquad for graphics. Written in Rust and use Macroquad crate for graphics and ws crate for web socket server, also written in Rust. Will target both native as well as wasm, with online matchmaking.
 

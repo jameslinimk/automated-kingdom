@@ -16,7 +16,7 @@ pub mod util;
 /// Config for the game
 fn config() -> Conf {
     Conf {
-        window_title: "Futuretes".to_owned(),
+        window_title: "Automated Kingdom".to_owned(),
         ..Default::default()
     }
 }
