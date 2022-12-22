@@ -1,3 +1,5 @@
+//! Functions for astar pathfinding
+
 use std::hash::BuildHasherDefault;
 
 use macroquad::prelude::{uvec2, UVec2, Vec2};
@@ -21,7 +23,7 @@ fn valid(point: &UVec2, map: &Map) -> bool {
 }
 
 /// Returns a list of valid moves from a point
-fn get_neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
+fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
     let mut children = vec![];
 
     macro_rules! add_if_valid {
@@ -86,7 +88,7 @@ pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
             break;
         }
 
-        for neighbor in get_neighbors(&current, map).iter() {
+        for neighbor in neighbors(&current, map).iter() {
             let new_cost = costs[&current] + 1;
             if !costs.contains_key(neighbor) || new_cost < costs[neighbor] {
                 costs.insert(*neighbor, new_cost);

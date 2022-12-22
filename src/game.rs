@@ -1,14 +1,15 @@
 use derive_new::new;
 
+use crate::conf::SILVER_FONT;
 use crate::map::Map;
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
-use crate::objects::worker::get_workers_mut;
+use crate::objects::worker::workers_iter_mut;
 
 static mut GAME: Option<Game> = None;
 
 /// Returns the global [Game] object as a mutable reference
-pub fn get_game() -> &'static mut Game {
+pub fn game() -> &'static mut Game {
     unsafe {
         if GAME.is_none() {
             GAME = Some(Game::new());
@@ -32,16 +33,22 @@ pub struct Game {
     pub map: Map,
 }
 impl Game {
+    pub async fn init(&mut self) {
+        let _ = *SILVER_FONT;
+        self.map.set_camera_bounds();
+    }
+
     pub fn update(&mut self) {
         self.players[self.main_player].update();
         self.camera.update();
-        for worker in get_workers_mut() {
+        for worker in workers_iter_mut() {
             worker.update();
         }
     }
 
     pub fn draw(&mut self) {
-        self.players[self.main_player].draw();
         self.map.draw();
+        self.players[self.main_player].draw();
+        self.map.draw_minimap();
     }
 }

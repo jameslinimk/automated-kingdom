@@ -2,7 +2,7 @@
 
 use macroquad::window::{next_frame, Conf};
 
-use crate::game::get_game;
+use crate::game::game;
 
 pub mod astar;
 pub mod conf;
@@ -23,9 +23,10 @@ fn config() -> Conf {
 
 #[macroquad::main(config)]
 async fn main() {
+    game().init().await;
     loop {
-        get_game().update();
-        get_game().draw();
+        game().update();
+        game().draw();
         next_frame().await;
     }
 }

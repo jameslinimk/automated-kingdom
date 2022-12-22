@@ -1,10 +1,11 @@
 //! Utility functions and macros
 
 use macroquad::prelude::{mouse_position, vec2, Color, Vec2};
-use macroquad::text::{draw_text_ex, measure_text, Font, TextParams};
-use macroquad::window::{screen_height, screen_width};
+use macroquad::shapes::draw_rectangle;
+use macroquad::text::{draw_text_ex, measure_text, TextParams};
 
-use crate::game::get_game;
+use crate::conf::SILVER_FONT;
+use crate::game::game;
 
 /// Create [rustc_hash::FxHashMap]'s using a readable syntax, similar to dicts in python or objects in js. Adapted from maplit to support `FxHashMap`
 ///
@@ -66,8 +67,8 @@ macro_rules! hashset {
 }
 
 /// Draw text centered at a given position
-pub fn draw_centered_text(text: &str, x: f32, y: f32, font: Font, font_size: f32, color: Color) {
-    let measurements = measure_text(text, Some(font), font_size as u16, 1.0);
+pub fn draw_centered_text(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
+    let measurements = measure_text(text, Some(*SILVER_FONT), font_size as u16, 1.0);
     draw_text_ex(
         text,
         x - measurements.width / 2.0,
@@ -76,44 +77,44 @@ pub fn draw_centered_text(text: &str, x: f32, y: f32, font: Font, font_size: f32
             font_size: font_size as u16,
             font_scale: 1.0,
             color,
-            font,
+            font: *SILVER_FONT,
             ..Default::default()
         },
-    )
+    );
+}
+
+// Returns a position relative to the screen
+pub fn relative(pos: Vec2) -> Vec2 {
+    game().camera.camera.screen_to_world(pos)
 }
 
 /// Returns the x position relative to the screen
-pub fn rx(x: f32) -> f32 {
-    x - (screen_width() / 2.0 - get_game().camera.camera.target.x)
+pub fn relative_x(x: f32) -> f32 {
+    game().camera.camera.screen_to_world(vec2(x, 0.0)).x
 }
 
 /// Returns the y position relative to the screen
-pub fn ry(y: f32) -> f32 {
-    y - (screen_height() / 2.0 - get_game().camera.camera.target.y)
+pub fn relative_y(y: f32) -> f32 {
+    game().camera.camera.screen_to_world(vec2(0.0, y)).y
 }
 
-/// Returns the x position relative to the screen (counteracted to adjust for shake)
-pub fn rxs(x: f32) -> f32 {
-    let shake_offset = if get_game().camera.shake.is_none() {
-        0.0
-    } else {
-        get_game().camera.shake_offset.x
-    };
-    return x - (screen_width() / 2.0 - get_game().camera.camera.target.x + shake_offset);
+/// Returns the given value without zoom
+pub fn relative_zoom(v: f32) -> f32 {
+    v / game().camera.zoom
 }
 
-/// Returns the y position relative to the screen (counteracted to adjust for shake)
-pub fn rys(y: f32) -> f32 {
-    let shake_offset = if get_game().camera.shake.is_none() {
-        0.0
-    } else {
-        get_game().camera.shake_offset.y
-    };
-    return y - (screen_height() / 2.0 - get_game().camera.camera.target.y + shake_offset);
+/// Draw a rectangle relative to the screen
+pub fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
+    draw_rectangle(
+        relative_x(x),
+        relative_y(y),
+        relative_zoom(w),
+        relative_zoom(h),
+        color,
+    );
 }
 
 /// Returns the mouse position relative to the screen
 pub fn rel_mouse_pos() -> Vec2 {
-    let mouse_pos = mouse_position();
-    vec2(rx(mouse_pos.0), ry(mouse_pos.1))
+    relative(mouse_position().into())
 }

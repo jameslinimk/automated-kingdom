@@ -23,7 +23,7 @@ pub struct ShakeConfig {
 pub struct Camera {
     /// Actual [Camera2D] object sent to Macroquad
     #[new(value = "Camera2D {
-        zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0),
+        zoom: vec2(2.0 / screen_width(), -2.0 / screen_height()),
         target: vec2(screen_width() / 2.0, screen_height() / 2.0),
         ..Default::default()
     }")]
@@ -35,11 +35,11 @@ pub struct Camera {
     /// Set's the target of the camera, `None` if no target is active
     /// - If active, the camera will pan to the target and will lock manual movement
     #[new(value = "None")]
-    pub target: Option<Vec2>,
+    target: Option<Vec2>,
 
     /// The current camera shake config, `None` if no shake is active
     #[new(value = "None")]
-    pub shake: Option<ShakeConfig>,
+    shake: Option<ShakeConfig>,
 
     /// The current offset of the camera shake
     #[new(value = "vec2(0.0, 0.0)")]
@@ -62,10 +62,10 @@ impl Camera {
     pub fn update(&mut self) {
         /* --------------------------------- Zooming -------------------------------- */
         if is_key_pressed(KeyCode::Equal) {
-            self.increase_zoom(0.3);
+            self.increase_zoom(0.2);
         }
         if is_key_pressed(KeyCode::Minus) {
-            self.increase_zoom(-0.3);
+            self.increase_zoom(-0.2);
         }
 
         /* --------------------------------- Target --------------------------------- */
@@ -100,29 +100,30 @@ impl Camera {
                 hspd += 1.0;
             }
 
+            // Normalize diagonal movement
             let dia = if hspd != 0.0 && vspd != 0.0 {
                 FRAC_1_SQRT_2
             } else {
                 1.0
             };
 
+            // Apply movement
             self.camera.target.x += hspd * get_frame_time() * self.speed * dia;
             self.camera.target.y += vspd * get_frame_time() * self.speed * dia;
 
+            // Apply bounds
             if let Some(bounds) = self.bounds {
-                if self.camera.target.x < screen_width() / 2.0 {
-                    self.camera.target.x = screen_width() / 2.0;
-                }
-                if self.camera.target.y < screen_height() / 2.0 {
-                    self.camera.target.y = screen_height() / 2.0;
-                }
+                let bounds_top_left = vec2(0.0, 0.0);
+                let bounds_bottom_right = bounds;
 
-                if self.camera.target.x > bounds.x - screen_width() / 2.0 {
-                    self.camera.target.x = bounds.x - screen_width() / 2.0;
-                }
-                if self.camera.target.y > bounds.y - screen_height() / 2.0 {
-                    self.camera.target.y = bounds.y - screen_height() / 2.0;
-                }
+                let viewport_size = vec2(screen_width(), screen_height()) / self.zoom;
+                let half_vs = viewport_size * 0.5;
+
+                self.camera.target = self
+                    .camera
+                    .target
+                    .clamp(bounds_top_left + half_vs, bounds_bottom_right - half_vs);
+                self.camera.zoom = vec2(2.0, -2.0) / viewport_size;
             }
         }
 
@@ -145,9 +146,8 @@ impl Camera {
     }
 
     pub fn set_zoom(&mut self, new_zoom: f32) {
-        self.zoom = new_zoom;
-        self.camera.zoom =
-            vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0) * self.zoom;
+        self.zoom = new_zoom.clamp(0.5, 2.0);
+        self.camera.zoom = vec2(2.0 / screen_width(), -2.0 / screen_height()) * self.zoom;
     }
 
     pub fn increase_zoom(&mut self, increase: f32) {

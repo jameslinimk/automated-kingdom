@@ -20,17 +20,20 @@ pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
     (-y_dist).atan2(x_dist) % (2.0 * PI)
 }
 
+/// Finds distance between 2 points
+pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
+    let x_dist = p2.x - p1.x;
+    let y_dist = p2.y - p1.y;
+
+    (x_dist * x_dist + y_dist * y_dist).sqrt()
+}
+
 /// Projects point at certain radians and distance
 pub fn project(origin: &Vec2, radians: f32, distance: f32) -> Vec2 {
     vec2(
         origin.x + (radians.cos() * distance),
         origin.y - (radians.sin() * distance),
     )
-}
-
-/// Finds distance between 2 points
-pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
-    ((p1.x - p2.x).powf(2.0) + (p1.y - p2.y).powf(2.0)).sqrt()
 }
 
 /// Converts a value from `0.0` - `1.0` to an ease-in-out curve (sign wave)
