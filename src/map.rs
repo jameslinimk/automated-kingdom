@@ -1,10 +1,13 @@
 use derive_new::new;
-use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, WHITE};
-use macroquad::shapes::draw_rectangle;
+use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, RED, WHITE};
+use macroquad::texture::{draw_texture, DrawTextureParams};
+use rustc_hash::FxHashSet;
 
+use crate::asset_map::get_texture;
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
-use crate::util::draw_rel_rectangle;
+use crate::hashset;
+use crate::util::{draw_rel_rectangle, draw_rel_texture_ex};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Tile {
@@ -24,21 +27,20 @@ pub struct Map {
     pub height: usize,
 }
 impl Map {
-    pub fn get(&self, loc: &UVec2) -> Tile {
-        self.map[loc.y as usize][loc.x as usize]
+    pub fn get(&self, pos: &UVec2) -> Tile {
+        self.map[pos.y as usize][pos.x as usize]
     }
 
     pub fn draw(&self) {
         for (y, row) in self.map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
-                let world_loc = loc_to_world(&uvec2(x as u32, y as u32));
+                let world_pos = pos_to_world(&uvec2(x as u32, y as u32));
                 match tile {
                     Tile::Wall => {
-                        draw_rectangle(
-                            world_loc.x - SQUARE_SIZE / 2.0,
-                            world_loc.y - SQUARE_SIZE / 2.0,
-                            SQUARE_SIZE,
-                            SQUARE_SIZE,
+                        draw_texture(
+                            get_texture("wall"),
+                            world_pos.x - SQUARE_SIZE / 2.0,
+                            world_pos.y - SQUARE_SIZE / 2.0,
                             WHITE,
                         );
                     }
@@ -50,25 +52,37 @@ impl Map {
 
     pub fn draw_minimap(&self) {
         let new_square_size = SQUARE_SIZE / 20.0;
+        let margin = 8.0;
+
+        // Border / background
+        let width = self.width as f32 * new_square_size;
+        let height = self.height as f32 * new_square_size;
+        draw_rel_rectangle(0.0, 0.0, width + margin * 2.0, height + margin * 2.0, RED);
+
+        // Minimap
         for (y, row) in self.map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 match tile {
                     Tile::Wall => {
-                        draw_rel_rectangle(
-                            x as f32 * new_square_size,
-                            y as f32 * new_square_size,
-                            new_square_size,
-                            new_square_size,
-                            WHITE,
+                        draw_rel_texture_ex(
+                            get_texture("wall"),
+                            margin + x as f32 * new_square_size,
+                            margin + y as f32 * new_square_size,
+                            DrawTextureParams {
+                                dest_size: Some(vec2(new_square_size, new_square_size)),
+                                ..Default::default()
+                            },
                         );
                     }
                     Tile::Air => {}
                 }
             }
         }
+
+        // Camera view indicator
     }
 
-    pub fn set_camera_bounds(&self) {
+    pub fn update_camera_bounds(&self) {
         game().camera.bounds = Some(vec2(
             self.width as f32 * SQUARE_SIZE,
             self.height as f32 * SQUARE_SIZE,
@@ -76,16 +90,16 @@ impl Map {
     }
 }
 
-/// Inverse of [world_to_loc]. Converts a location on a [Map] to a world position
-pub fn loc_to_world(loc: &UVec2) -> Vec2 {
-    vec2(loc.x as f32 * SQUARE_SIZE, loc.y as f32 * SQUARE_SIZE)
+/// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
+pub fn pos_to_world(pos: &UVec2) -> Vec2 {
+    vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
 }
 
-/// Inverse of [loc_to_world], converts a world position to a location on a [Map]
-pub fn world_to_loc(loc: &Vec2) -> UVec2 {
+/// Inverse of [pos_to_world], converts a world position to a location on a [Map]
+pub fn world_to_pos(pos: &Vec2) -> UVec2 {
     uvec2(
-        (loc.x / SQUARE_SIZE).round() as u32,
-        (loc.y / SQUARE_SIZE).round() as u32,
+        (pos.x / SQUARE_SIZE).round() as u32,
+        (pos.y / SQUARE_SIZE).round() as u32,
     )
 }
 
@@ -105,12 +119,6 @@ fn string_to_map(string: &'static str) -> (Vec<Vec<Tile>>, usize, usize) {
     let width = map[0].len();
     let height = map.len();
     (map, width, height)
-}
-
-#[test]
-fn test() {
-    let (_, width, height) = string_to_map(TEST_MAP);
-    println!("(width, height): {:?}", (width, height));
 }
 
 const TEST_MAP: &str = "######################################################################################################################################################

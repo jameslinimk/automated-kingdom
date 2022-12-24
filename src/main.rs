@@ -4,11 +4,13 @@ use macroquad::window::{next_frame, Conf};
 
 use crate::game::game;
 
+pub mod asset_map;
 pub mod astar;
 pub mod conf;
 pub mod game;
 pub mod geometry;
 pub mod map;
+pub mod map_gen;
 pub mod math;
 pub mod objects;
 pub mod util;

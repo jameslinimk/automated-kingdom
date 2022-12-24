@@ -1,5 +1,6 @@
 use derive_new::new;
 
+use crate::asset_map::add_texture;
 use crate::conf::SILVER_FONT;
 use crate::map::Map;
 use crate::objects::camera::Camera;
@@ -35,7 +36,8 @@ pub struct Game {
 impl Game {
     pub async fn init(&mut self) {
         let _ = *SILVER_FONT;
-        self.map.set_camera_bounds();
+        add_texture("wall", include_bytes!("../assets/sprites/wall.png"));
+        self.map.update_camera_bounds();
     }
 
     pub fn update(&mut self) {

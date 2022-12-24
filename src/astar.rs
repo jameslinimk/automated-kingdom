@@ -7,7 +7,7 @@ use priority_queue::PriorityQueue;
 use rustc_hash::FxHasher;
 
 use crate::hashmap;
-use crate::map::{loc_to_world, Map, Tile};
+use crate::map::{pos_to_world, Map, Tile};
 use crate::math::distance;
 
 /// Gets the manhattan distance between two points
@@ -71,8 +71,6 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
 
 /// Returns a path from start to goal using the A* algorithm, or `None` if no path is found
 pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
-    println!("(start, goal): {:?}", (start, goal));
-
     let mut parents = hashmap! {};
     let mut costs = hashmap! {};
     let mut priority_queue = PriorityQueue::<UVec2, u32, BuildHasherDefault<FxHasher>>::default();
@@ -103,10 +101,10 @@ pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
     let mut path = vec![];
     if costs.contains_key(goal) {
         while current != *start {
-            path.push(loc_to_world(&current));
+            path.push(pos_to_world(&current));
             current = parents[&current];
         }
-        path.push(loc_to_world(start));
+        path.push(pos_to_world(start));
         path.reverse();
         return Some(path);
     }
@@ -126,36 +124,4 @@ pub fn path_time(current_pos: &Vec2, speed: f32, path: &[Vec2]) -> f32 {
         time /= speed;
     }
     time
-}
-
-#[test]
-fn test_astar() {
-    // Write tests for astar function
-    let width = 10;
-    let height = 10;
-    let mut test_map = Map {
-        width,
-        height,
-        map: vec![vec![Tile::Air; width]; height],
-    };
-
-    test_map.map[8][9] = Tile::Wall;
-    // test_map.map[9][8] = Tile::Wall;
-    test_map.map[8][8] = Tile::Wall;
-
-    // Print map
-    for row in test_map.map.iter() {
-        for tile in row.iter() {
-            match tile {
-                Tile::Wall => print!("#"),
-                Tile::Air => print!("."),
-            }
-        }
-        println!();
-    }
-
-    let goal = uvec2(9, 9);
-    let start = uvec2(0, 0);
-    let path = astar(&start, &goal, &test_map).unwrap();
-    println!("path: {:?}", path);
 }

@@ -11,7 +11,7 @@ use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::math::{angle, distance, project};
-use crate::util::draw_centered_text;
+use crate::util::draw_text_center;
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
 
@@ -53,10 +53,6 @@ pub struct Worker {
 
     #[new(value = "200.0")]
     pub speed: f32,
-
-    /// Whether or not to draw the path and time to the complete
-    #[new(value = "true")]
-    pub draw_path: bool,
 }
 impl PartialEq for Worker {
     fn eq(&self, other: &Self) -> bool {
@@ -94,27 +90,26 @@ impl Worker {
         }
 
         // Drawing time
-        if self.draw_path {
-            if let Some(path) = &self.path {
-                if let Some(end_pos) = path.last() {
-                    draw_line(
-                        self.rect.center().x,
-                        self.rect.center().y,
-                        end_pos.x,
-                        end_pos.y,
-                        2.5,
-                        color_u8!(128, 128, 128, 128),
-                    );
+        if let Some(path) = &self.path {
+            if let Some(end_pos) = path.last() {
+                draw_line(
+                    self.rect.center().x,
+                    self.rect.center().y,
+                    end_pos.x,
+                    end_pos.y,
+                    2.5,
+                    color_u8!(128, 128, 128, 128),
+                );
 
-                    let time = path_time(&self.rect.center(), self.speed, path);
-                    draw_centered_text(
-                        &format!("{:.2}", time),
-                        self.rect.center().x,
-                        self.rect.top(),
-                        23.0,
-                        WHITE,
-                    );
-                }
+                let time = path_time(&self.rect.center(), self.speed, path);
+                let font_size = 23.0;
+                draw_text_center(
+                    &format!("{:.2}", time),
+                    self.rect.center().x,
+                    self.rect.top() - font_size / 2.0,
+                    font_size,
+                    WHITE,
+                );
             }
         }
     }

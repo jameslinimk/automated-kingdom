@@ -4,9 +4,11 @@ use macroquad::window::{screen_height, screen_width};
 
 use crate::astar::astar;
 use crate::game::game;
-use crate::map::world_to_loc;
+use crate::map::world_to_pos;
 use crate::objects::worker::Worker;
 use crate::util::{draw_rel_rectangle, rel_mouse_pos};
+
+pub const BOTTOM_UI_HEIGHT: f32 = 64.0;
 
 #[derive(new)]
 pub struct Player {
@@ -34,8 +36,8 @@ impl Player {
         if is_mouse_button_pressed(MouseButton::Right) {
             if let Some(worker) = self.selected_worker() {
                 let path = astar(
-                    &world_to_loc(&worker.rect.center()),
-                    &world_to_loc(&rel_mouse_pos()),
+                    &world_to_pos(&worker.rect.center()),
+                    &world_to_pos(&rel_mouse_pos()),
                     &game().map,
                 );
                 worker.path = path;
@@ -53,33 +55,32 @@ impl Player {
 
     pub fn draw_ui(&mut self) {
         /* ------------------------------- Bottom part ------------------------------ */
-        let bottom_height = 64.0;
-        let info_width = 256.0;
-
         // General info
+        let general_info_width = 256.0;
         draw_rel_rectangle(
             0.0,
-            screen_height() - bottom_height,
-            info_width,
-            bottom_height,
+            screen_height() - BOTTOM_UI_HEIGHT,
+            general_info_width,
+            BOTTOM_UI_HEIGHT,
             RED,
         );
 
         // Selected worker image
+        let selected_worker_width = BOTTOM_UI_HEIGHT;
         draw_rel_rectangle(
-            info_width,
-            screen_height() - bottom_height,
-            bottom_height,
-            bottom_height,
+            general_info_width,
+            screen_height() - BOTTOM_UI_HEIGHT,
+            selected_worker_width,
+            BOTTOM_UI_HEIGHT,
             BLUE,
         );
 
         // Selected worker info and commands
         draw_rel_rectangle(
-            info_width + bottom_height,
-            screen_height() - bottom_height,
-            screen_width() - info_width,
-            bottom_height,
+            general_info_width + selected_worker_width,
+            screen_height() - BOTTOM_UI_HEIGHT,
+            screen_width() - general_info_width - selected_worker_width,
+            BOTTOM_UI_HEIGHT,
             GREEN,
         );
 

@@ -9,7 +9,10 @@ use macroquad::prelude::{
     vec2, Camera2D, KeyCode, Vec2,
 };
 
+use crate::conf::SQUARE_SIZE;
+use crate::game::game;
 use crate::math::{angle, distance, ease_in_out, project};
+use crate::objects::player::BOTTOM_UI_HEIGHT;
 
 /// Info about the a camera shake, sent to the camera to start a shake
 #[derive(Debug, Clone, Copy)]
@@ -24,11 +27,12 @@ pub struct Camera {
     /// Actual [Camera2D] object sent to Macroquad
     #[new(value = "Camera2D {
         zoom: vec2(2.0 / screen_width(), -2.0 / screen_height()),
-        target: vec2(screen_width() / 2.0, screen_height() / 2.0),
+        target: vec2(screen_width() / 2.0 - SQUARE_SIZE / 2.0, screen_height() / 2.0 - SQUARE_SIZE / 2.0),
         ..Default::default()
     }")]
     pub camera: Camera2D,
 
+    /// The zoom of the camera (1.0 is default)
     #[new(value = "1.0")]
     pub zoom: f32,
 
@@ -119,10 +123,15 @@ impl Camera {
                 let viewport_size = vec2(screen_width(), screen_height()) / self.zoom;
                 let half_vs = viewport_size * 0.5;
 
-                self.camera.target = self
-                    .camera
-                    .target
-                    .clamp(bounds_top_left + half_vs, bounds_bottom_right - half_vs);
+                let extra_space = 500.0;
+
+                self.camera.target = self.camera.target.clamp(
+                    // - SQUARE_SIZE / 2.0 because map is drawn from center, not top left
+                    bounds_top_left + half_vs - SQUARE_SIZE / 2.0 - extra_space,
+                    // + BOTTOM_UI_HEIGHT - SQUARE_SIZE / 2.0 to account for the bottom ui
+                    bounds_bottom_right - half_vs + BOTTOM_UI_HEIGHT - SQUARE_SIZE / 2.0
+                        + extra_space,
+                );
                 self.camera.zoom = vec2(2.0, -2.0) / viewport_size;
             }
         }
@@ -145,11 +154,13 @@ impl Camera {
         set_camera(&self.camera);
     }
 
+    /// Sets the camera zoom, clamped between 0.5 and 2.0
     pub fn set_zoom(&mut self, new_zoom: f32) {
         self.zoom = new_zoom.clamp(0.5, 2.0);
         self.camera.zoom = vec2(2.0 / screen_width(), -2.0 / screen_height()) * self.zoom;
     }
 
+    /// Increases the camera zoom by the given amount
     pub fn increase_zoom(&mut self, increase: f32) {
         self.set_zoom(self.zoom + increase)
     }
