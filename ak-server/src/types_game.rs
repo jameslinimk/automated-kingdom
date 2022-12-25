@@ -16,6 +16,8 @@ pub struct Worker {
 
 #[derive(Serialize, Deserialize)]
 pub struct Player {
+    pub uuid: u64,
+    pub ping: u16,
     pub workers: Vec<Worker>,
     pub color: Color,
 }
@@ -31,10 +33,4 @@ pub struct Map {
     pub tiles: Vec<Vec<Tile>>,
     pub width: usize,
     pub height: usize,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Game {
-    pub players: Vec<Player>,
-    pub map: Map,
 }

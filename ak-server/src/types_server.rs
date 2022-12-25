@@ -1,12 +1,23 @@
-
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct PingResponse {
-    pub ping: u64,
+pub enum ErrorCode {
+    /// The username contains invalid characters
+    UsernameInvalid,
+    /// The username is too long
+    UsernameTooLong,
+    /// Sent request too fast
+    Ratelimited,
+    AlreadyInGame,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum ServerResponse {
-    Ping(PingResponse),
+pub enum ServerResponseData {
+    Error(ErrorCode),
+    GameCreateSuccess(Uuid),
+    Success,
 }
+
+/// `(response, ping)`
+pub type ServerResponse = (ServerResponseData, u16);

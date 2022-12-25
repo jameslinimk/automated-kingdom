@@ -23,6 +23,8 @@
 		"pathfinding",
 		"pathing",
 		"powf",
+		"ratelimited",
+		"ratelimits",
 		"rustc",
 		"rustfmt",
 		"uvec"

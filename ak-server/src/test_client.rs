@@ -13,7 +13,7 @@ pub fn main() {
     loop {
         // Send a ping
         let test_payload = ClientRequest::Ping(Ping {
-            time: Utc::now().timestamp_millis() as u64,
+            timestamp: Utc::now().timestamp_millis() as u64,
         });
         let test_payload = rmp_serde::to_vec(&test_payload).unwrap();
         stream.write_all(&test_payload).unwrap();
@@ -31,8 +31,8 @@ pub fn main() {
 
         println!("line: {:?}", res);
 
-        let data: ServerResponse = rmp_serde::from_slice(&res).unwrap();
-        println!("{:?}", data);
+        let (data, ping) = rmp_serde::from_slice::<ServerResponse>(&res).unwrap();
+        println!("{:?} (ping: {})", data, ping);
 
         sleep(Duration::from_millis(1500));
     }

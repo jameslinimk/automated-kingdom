@@ -3,8 +3,10 @@ use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 
+use ak_server::game::{in_game, CONN_GAMES};
 use ak_server::hashmap;
 use ak_server::types_client::ClientRequest;
+use chrono::Utc;
 use colored::Colorize;
 use lazy_static::lazy_static;
 use rustc_hash::{FxHashMap, FxHasher};
@@ -26,19 +28,6 @@ fn add_username(uuid: u64, username: &str) {
 
     let json = serde_json::to_string(&*usernames).unwrap();
     fs::write("usernames.json", json).unwrap();
-}
-
-/// Close a connection, remove it from the connection count, and return
-macro_rules! close_return {
-    () => {{
-        CONN_COUNT.fetch_sub(1, Ordering::Relaxed);
-        return;
-    }};
-    ($($arg:tt)*) => {{
-        println!("{}", format!($($arg)*).red());
-        CONN_COUNT.fetch_sub(1, Ordering::Relaxed);
-        return;
-    }};
 }
 
 fn hash_socket(socket: &TcpStream) -> Result<u64, std::io::Error> {
@@ -96,8 +85,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         CONN_COUNT.fetch_add(1, Ordering::Relaxed);
 
         // Add username
-        let username = format!("Guest-{}", 5);
+        let username = format!("Guest-{}", (hash & 0xFFFF));
         add_username(hash, &username);
+
+        /// Close a connection, remove it from the connection count, remove player from game if in one, and return
+        macro_rules! close_return {
+            () => {{
+                CONN_COUNT.fetch_sub(1, Ordering::Relaxed);
+                if in_game(hash) {
+                    let mut games = CONN_GAMES.lock().unwrap();
+                    games.remove(&hash);
+                }
+                return;
+            }};
+            ($($arg:tt)*) => {{
+                println!("{}", format!($($arg)*).red());
+                close_return!();
+            }};
+        }
 
         tokio::spawn(async move {
             let mut buf = [0; 1024];
@@ -113,7 +118,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 };
 
                 let raw = &buf[0..n];
-                println!("Received: {:?}", raw);
 
                 let request: ClientRequest = match rmp_serde::from_slice(raw) {
                     Ok(response) => response,
@@ -122,13 +126,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 };
 
-                let response = handle_request(hash, request);
+                let now = Utc::now().timestamp_millis() as u64;
+                let ping = now.saturating_sub(request.timestamp());
+                let response = (
+                    handle_request(hash, &request),
+                    ping.clamp(0, u16::MAX.into()) as u16,
+                );
                 let mut response = rmp_serde::to_vec(&response).unwrap();
 
                 // Prepend the length of the response to the response
                 response.splice(0..0, response.len().to_ne_bytes().iter().copied());
 
-                println!("Sending: {:?}", response);
                 if let Err(err) = socket.write_all(&response).await {
                     close_return!("Failed to write to socket; {:?}", err);
                 }
