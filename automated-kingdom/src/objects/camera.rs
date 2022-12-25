@@ -10,7 +10,6 @@ use macroquad::prelude::{
 };
 
 use crate::conf::SQUARE_SIZE;
-use crate::game::game;
 use crate::math::{angle, distance, ease_in_out, project};
 use crate::objects::player::BOTTOM_UI_HEIGHT;
 

@@ -1,6 +1,6 @@
 # Automated Kingdom
 
-Multiplayer top down game written in rust and using macroquad for graphics. Written in Rust and use Macroquad crate for graphics and ws crate for web socket server, also written in Rust. Will target both native as well as wasm, with online matchmaking.
+Multiplayer top down game written in rust and using macroquad for graphics. Written in Rust and use Macroquad crate for graphics and tcp for the server, also written in Rust. Will target both native as well as wasm, with online matchmaking.
 
 ## How the game works
 
@@ -14,6 +14,6 @@ Players can also train a wide variety of troops, which they can then use to atta
 - Enemy opponent AI
 - Troop AI
 - Random world generation
-- Web sockets
+- TCP server
 - WASM
 - Macroquad

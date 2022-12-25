@@ -1,12 +1,10 @@
 use derive_new::new;
 use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, RED, WHITE};
 use macroquad::texture::{draw_texture, DrawTextureParams};
-use rustc_hash::FxHashSet;
 
 use crate::asset_map::get_texture;
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
-use crate::hashset;
 use crate::util::{draw_rel_rectangle, draw_rel_texture_ex};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
