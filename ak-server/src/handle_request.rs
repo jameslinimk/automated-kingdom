@@ -4,7 +4,7 @@ use ak_server::game::{in_game, Game, CONN_GAMES, GAMES};
 use ak_server::hashmap;
 use ak_server::types_client::ClientRequest;
 use ak_server::types_game::{Color, Player};
-use ak_server::types_server::{ErrorCode, ServerResponseData};
+use ak_server::types_server::{ErrorCode, ResponseData};
 use lazy_static::lazy_static;
 use rustc_hash::FxHashMap;
 
@@ -17,7 +17,7 @@ lazy_static! {
 /// The minimum amount of time between requests that are ratelimited
 const RATELIMIT: u64 = 250;
 
-fn valid_password(input: &str) -> Option<ErrorCode> {
+fn valid_username(input: &str) -> Option<ErrorCode> {
     if input.len() <= 50 {
         return Some(ErrorCode::UsernameTooLong);
     }
@@ -30,49 +30,44 @@ fn valid_password(input: &str) -> Option<ErrorCode> {
     None
 }
 
-pub fn handle_request(uuid: u64, request: &ClientRequest) -> ServerResponseData {
+pub fn handle_request(uuid: u64, request: &ClientRequest) -> ResponseData {
     // Check if request is ratelimited
     if request.ratelimited() {
         let mut ratelimits = CONN_RATELIMIT.lock().unwrap();
         if let Some(last_req) = ratelimits.get(&uuid) {
             if *last_req + RATELIMIT > request.timestamp() {
-                return ServerResponseData::Error(ErrorCode::Ratelimited);
+                return ResponseData::Error(ErrorCode::Ratelimited);
             }
         }
         ratelimits.insert(uuid, request.timestamp());
     }
 
     match request {
-        ClientRequest::Ping(_) => ServerResponseData::Success,
+        ClientRequest::Ping(_) => ResponseData::Success,
         ClientRequest::Rename(rename) => {
             // Make sure name is valid
-            if let Some(err) = valid_password(&rename.name) {
-                return ServerResponseData::Error(err);
+            if let Some(err) = valid_username(&rename.name) {
+                return ResponseData::Error(err);
             }
 
             add_username(uuid, &rename.name);
-            ServerResponseData::Success
+            ResponseData::Success
         }
         ClientRequest::CreateGame(_) => {
             if in_game(uuid) {
-                return ServerResponseData::Error(ErrorCode::AlreadyInGame);
+                return ResponseData::Error(ErrorCode::AlreadyInGame);
             }
 
-            let mut game = Game::default();
-            game.players.push(Player {
-                uuid,
-                ping: 0,
-                workers: vec![],
-                color: Color::Blue,
-            });
-
-            let mut conn_games = CONN_GAMES.lock().unwrap();
-            conn_games.insert(uuid, game.uuid);
+            let game = Game::new(vec![Player::new(uuid, Color::Blue)]);
+            let game_uuid = game.uuid;
 
             let mut games = GAMES.lock().unwrap();
-            games.insert(game.uuid, game);
+            games.insert(game_uuid, game);
 
-            todo!()
+            let mut conn_games = CONN_GAMES.lock().unwrap();
+            conn_games.insert(uuid, game_uuid);
+
+            ResponseData::GameCreateSuccess(game_uuid)
         }
     }
 }

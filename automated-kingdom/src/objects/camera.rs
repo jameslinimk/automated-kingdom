@@ -11,7 +11,7 @@ use macroquad::prelude::{
 
 use crate::conf::SQUARE_SIZE;
 use crate::math::{angle, distance, ease_in_out, project};
-use crate::objects::player::BOTTOM_UI_HEIGHT;
+use crate::objects::player::bottom_ui_height;
 
 /// Info about the a camera shake, sent to the camera to start a shake
 #[derive(Debug, Clone, Copy)]
@@ -127,8 +127,8 @@ impl Camera {
                 self.camera.target = self.camera.target.clamp(
                     // - SQUARE_SIZE / 2.0 because map is drawn from center, not top left
                     bounds_top_left + half_vs - SQUARE_SIZE / 2.0 - extra_space,
-                    // + BOTTOM_UI_HEIGHT - SQUARE_SIZE / 2.0 to account for the bottom ui
-                    bounds_bottom_right - half_vs + BOTTOM_UI_HEIGHT - SQUARE_SIZE / 2.0
+                    // + bottom_ui_height()() - SQUARE_SIZE / 2.0 to account for the bottom ui
+                    bounds_bottom_right - half_vs + bottom_ui_height() - SQUARE_SIZE / 2.0
                         + extra_space,
                 );
                 self.camera.zoom = vec2(2.0, -2.0) / viewport_size;

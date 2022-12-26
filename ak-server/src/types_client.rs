@@ -31,7 +31,7 @@ impl ClientRequest {
     /// Returns the timestamp of the request
     pub fn timestamp(&self) -> u64 {
         macro_rules! timestamp {
-            ($( $x: ident ),*) => {
+            ($($x:ident),*) => {
                 $(
                     if let ClientRequest::$x(x) = self {
                         return x.timestamp;

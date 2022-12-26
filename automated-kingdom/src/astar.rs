@@ -27,7 +27,7 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
     let mut children = vec![];
 
     macro_rules! add_if_valid {
-        ($x_diff: expr, $y_diff: expr) => {
+        ($x_diff:expr, $y_diff:expr) => {
             if point.x as i32 + $x_diff >= 0 && point.y as i32 + $y_diff >= 0 {
                 let new_point = uvec2(
                     (point.x as i32 + $x_diff) as u32,
@@ -46,7 +46,7 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
     add_if_valid!(-1, 0);
 
     macro_rules! add_if_valid_diagonals {
-        ($x_diff: expr, $y_diff: expr) => {
+        ($x_diff:expr, $y_diff:expr) => {
             if point.x as i32 + $x_diff >= 0
                 && point.y as i32 + $y_diff >= 0
                 && point.x as i32 + $x_diff < map.width as i32

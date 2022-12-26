@@ -1,4 +1,3 @@
-use std::fs;
 use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
@@ -25,9 +24,6 @@ lazy_static! {
 fn add_username(uuid: u64, username: &str) {
     let mut usernames = CONN_USERNAMES.lock().unwrap();
     usernames.insert(uuid, username.to_string());
-
-    let json = serde_json::to_string(&*usernames).unwrap();
-    fs::write("usernames.json", json).unwrap();
 }
 
 fn hash_socket(socket: &TcpStream) -> Result<u64, std::io::Error> {
@@ -44,22 +40,6 @@ fn hash_socket(socket: &TcpStream) -> Result<u64, std::io::Error> {
 #[allow(dead_code)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Load usernames
-    match fs::read("usernames.json") {
-        Ok(json) => {
-            let usernames: FxHashMap<u64, String> = serde_json::from_slice(&json)?;
-            *CONN_USERNAMES.lock().unwrap() = usernames;
-            println!("{}", "Successfully loaded usernames.json".green());
-        }
-        Err(_) => {
-            println!(
-                "{}",
-                "No usernames.json not found, creating new file...".yellow()
-            );
-            fs::write("usernames.json", "{}")?;
-        }
-    };
-
     // Start listening
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!(

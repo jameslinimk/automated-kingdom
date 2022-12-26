@@ -34,7 +34,7 @@ pub struct Game {
     pub map: Map,
 }
 impl Game {
-    pub async fn init(&mut self) {
+    pub fn init(&mut self) {
         let _ = *SILVER_FONT;
         add_texture("wall", include_bytes!("../assets/sprites/wall.png"));
         self.map.update_camera_bounds();

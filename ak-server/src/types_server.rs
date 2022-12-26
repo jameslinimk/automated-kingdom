@@ -13,11 +13,11 @@ pub enum ErrorCode {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum ServerResponseData {
+pub enum ResponseData {
     Error(ErrorCode),
     GameCreateSuccess(Uuid),
     Success,
 }
 
 /// `(response, ping)`
-pub type ServerResponse = (ServerResponseData, u16);
+pub type ServerResponse = (ResponseData, u16);

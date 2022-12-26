@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 
+use derive_new::new;
 use lazy_static::lazy_static;
 use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
@@ -9,7 +10,9 @@ use crate::hashmap;
 use crate::types_game::{Map, Player};
 
 lazy_static! {
+    /// Map of every game to its id
     pub static ref GAMES: Mutex<FxHashMap<Uuid, Game>> = Mutex::new(hashmap! {});
+    /// Map of every socket connection to their game
     pub static ref CONN_GAMES: Mutex<FxHashMap<u64, Uuid>> = Mutex::new(hashmap! {});
 }
 
@@ -18,23 +21,13 @@ pub fn in_game(uuid: u64) -> bool {
     games.contains_key(&uuid)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(new, Clone, Serialize, Deserialize)]
 pub struct Game {
+    #[new(value = "Uuid::new_v4()")]
     pub uuid: Uuid,
+
     pub players: Vec<Player>,
+
+    #[new(value = "Map::random()")]
     pub map: Map,
 }
-impl Default for Game {
-    fn default() -> Game {
-        Game {
-            uuid: Uuid::new_v4(),
-            players: vec![],
-            map: Map {
-                tiles: vec![],
-                width: 0,
-                height: 0,
-            },
-        }
-    }
-}
-impl Game {}

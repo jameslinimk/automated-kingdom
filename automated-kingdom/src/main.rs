@@ -25,7 +25,7 @@ fn config() -> Conf {
 
 #[macroquad::main(config)]
 async fn main() {
-    game().init().await;
+    game().init();
     loop {
         game().update();
         game().draw();

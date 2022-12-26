@@ -6,9 +6,12 @@ use crate::astar::astar;
 use crate::game::game;
 use crate::map::world_to_pos;
 use crate::objects::worker::Worker;
+use crate::screen_size;
 use crate::util::{draw_rel_rectangle, rel_mouse_pos};
 
-pub const BOTTOM_UI_HEIGHT: f32 = 64.0;
+pub fn bottom_ui_height() -> f32 {
+    screen_size!(100.0, 150.0, 175.0)
+}
 
 #[derive(new)]
 pub struct Player {
@@ -56,31 +59,32 @@ impl Player {
     pub fn draw_ui(&mut self) {
         /* ------------------------------- Bottom part ------------------------------ */
         // General info
-        let general_info_width = 256.0;
+        let general_info_width = screen_size!(128.0, 192.0, 256.0);
+
         draw_rel_rectangle(
             0.0,
-            screen_height() - BOTTOM_UI_HEIGHT,
+            screen_height() - bottom_ui_height(),
             general_info_width,
-            BOTTOM_UI_HEIGHT,
+            bottom_ui_height(),
             RED,
         );
 
         // Selected worker image
-        let selected_worker_width = BOTTOM_UI_HEIGHT;
+        let selected_worker_width = bottom_ui_height();
         draw_rel_rectangle(
             general_info_width,
-            screen_height() - BOTTOM_UI_HEIGHT,
+            screen_height() - bottom_ui_height(),
             selected_worker_width,
-            BOTTOM_UI_HEIGHT,
+            bottom_ui_height(),
             BLUE,
         );
 
         // Selected worker info and commands
         draw_rel_rectangle(
             general_info_width + selected_worker_width,
-            screen_height() - BOTTOM_UI_HEIGHT,
+            screen_height() - bottom_ui_height(),
             screen_width() - general_info_width - selected_worker_width,
-            BOTTOM_UI_HEIGHT,
+            bottom_ui_height(),
             GREEN,
         );
 
