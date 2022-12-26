@@ -26,6 +26,7 @@
 		"ratelimits",
 		"rustc",
 		"rustfmt",
+		"spritesheet",
 		"uvec"
 	]
 }

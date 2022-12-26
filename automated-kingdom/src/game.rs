@@ -36,7 +36,25 @@ pub struct Game {
 impl Game {
     pub fn init(&mut self) {
         let _ = *SILVER_FONT;
-        add_texture("wall", include_bytes!("../assets/sprites/wall.png"));
+
+        /// Loads textures from a list of key-value pairs
+        macro_rules! load_textures {
+            ($($key:expr => $value:expr),*) => {{
+                $(
+                    add_texture($key, include_bytes!(concat!("../assets/sprites/", $value)));
+                )*
+            }};
+        }
+
+        load_textures!(
+            "wall" => "wall.png",
+            "blue_worker_icon" => "workers/blue/icon.png",
+            "blue_worker_idle_up" => "workers/blue/idle_up.png",
+            "blue_worker_idle_down" => "workers/blue/idle_down.png",
+            "blue_worker_walk_up" => "workers/blue/walk_up.png",
+            "blue_worker_walk_down" => "workers/blue/walk_down.png"
+        );
+
         self.map.update_camera_bounds();
     }
 

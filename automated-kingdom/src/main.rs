@@ -13,6 +13,7 @@ pub mod map;
 pub mod map_gen;
 pub mod math;
 pub mod objects;
+pub mod spritesheet;
 pub mod util;
 
 /// Config for the game
