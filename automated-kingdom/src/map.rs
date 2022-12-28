@@ -25,22 +25,17 @@ pub struct Map {
     pub height: usize,
 }
 impl Map {
-    pub fn get(&self, pos: &UVec2) -> Tile {
+    pub fn get(&self, pos: UVec2) -> Tile {
         self.map[pos.y as usize][pos.x as usize]
     }
 
     pub fn draw(&self) {
         for (y, row) in self.map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
-                let world_pos = pos_to_world(&uvec2(x as u32, y as u32));
+                let world_pos = pos_to_world(uvec2(x as u32, y as u32));
                 match tile {
                     Tile::Wall => {
-                        draw_texture(
-                            get_texture("wall"),
-                            world_pos.x - SQUARE_SIZE / 2.0,
-                            world_pos.y - SQUARE_SIZE / 2.0,
-                            WHITE,
-                        );
+                        draw_texture(get_texture("wall"), world_pos.x, world_pos.y, WHITE);
                     }
                     Tile::Air => {}
                 }
@@ -89,16 +84,13 @@ impl Map {
 }
 
 /// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
-pub fn pos_to_world(pos: &UVec2) -> Vec2 {
+pub fn pos_to_world(pos: UVec2) -> Vec2 {
     vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
 }
 
 /// Inverse of [pos_to_world], converts a world position to a location on a [Map]
-pub fn world_to_pos(pos: &Vec2) -> UVec2 {
-    uvec2(
-        (pos.x / SQUARE_SIZE).round() as u32,
-        (pos.y / SQUARE_SIZE).round() as u32,
-    )
+pub fn world_to_pos(pos: Vec2) -> UVec2 {
+    uvec2((pos.x / SQUARE_SIZE) as u32, (pos.y / SQUARE_SIZE) as u32)
 }
 
 fn string_to_map(string: &'static str) -> (Vec<Vec<Tile>>, usize, usize) {

@@ -2,14 +2,15 @@ use std::sync::atomic::{AtomicU16, Ordering};
 
 use derive_new::new;
 use macroquad::color_u8;
-use macroquad::prelude::{Color, Vec2, RED, WHITE};
+use macroquad::prelude::{vec2, Color, UVec2, Vec2, RED, WHITE};
 use macroquad::shapes::draw_line;
 use macroquad::time::get_frame_time;
 
-use crate::astar::path_time;
+use crate::astar::{astar, path_time};
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
+use crate::map::world_to_pos;
 use crate::math::{angle, distance, project};
 use crate::util::draw_text_center;
 
@@ -33,6 +34,14 @@ pub fn workers_iter_mut() -> impl Iterator<Item = &'static mut Worker> {
     game().players.iter_mut().flat_map(|p| p.workers.iter_mut())
 }
 
+#[derive(Clone, Copy, Debug)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 /// A worker that can be controlled by the player and can build structures
 #[derive(Debug, Clone, new)]
 pub struct Worker {
@@ -53,6 +62,9 @@ pub struct Worker {
 
     #[new(value = "200.0")]
     pub speed: f32,
+
+    #[new(value = "None")]
+    pub direction: Option<Direction>,
 }
 impl PartialEq for Worker {
     fn eq(&self, other: &Self) -> bool {
@@ -66,21 +78,38 @@ impl Worker {
             if !path.is_empty() {
                 let next_pos = path[0];
 
-                let dist = distance(&self.rect.center(), &next_pos);
-                let angle = angle(&self.rect.center(), &next_pos);
+                let dist = distance(&self.rect.top_left(), &next_pos);
+                let angle = angle(&self.rect.top_left(), &next_pos);
                 let speed = self.speed * get_frame_time();
+
+                let dir = self.rect.top_left().signum() - next_pos.signum();
+                self.direction = Some(match (dir.x as i8, dir.y as i8) {
+                    (0, 1) => Direction::Up,
+                    (0, -1) => Direction::Down,
+                    (1, 0) => Direction::Left,
+                    (-1, 0) => Direction::Right,
+                    _ => unreachable!(),
+                });
+
+                println!("self.direction: {:?}", self.direction);
 
                 if dist > speed {
                     self.rect
-                        .set_center(project(&self.rect.center(), angle, speed));
+                        .set_top_left(project(&self.rect.top_left(), angle, speed));
                 } else {
-                    self.rect.set_center(next_pos);
+                    self.rect.set_top_left(next_pos);
                     path.remove(0);
                 }
             } else {
                 self.path = None;
             }
         }
+    }
+
+    /// Sets the path to the given goal position on the map
+    pub fn path_to(&mut self, goal: UVec2) {
+        let path = astar(world_to_pos(self.rect.top_left()), goal);
+        self.path = path;
     }
 
     pub fn draw(&self, highlight: bool) {
@@ -92,6 +121,7 @@ impl Worker {
         // Drawing time
         if let Some(path) = &self.path {
             if let Some(end_pos) = path.last() {
+                let end_pos = *end_pos + vec2(SQUARE_SIZE / 2.0, SQUARE_SIZE / 2.0);
                 draw_line(
                     self.rect.center().x,
                     self.rect.center().y,

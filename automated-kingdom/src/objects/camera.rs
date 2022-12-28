@@ -9,7 +9,6 @@ use macroquad::prelude::{
     vec2, Camera2D, KeyCode, Vec2,
 };
 
-use crate::conf::SQUARE_SIZE;
 use crate::math::{angle, distance, ease_in_out, project};
 use crate::objects::player::bottom_ui_height;
 
@@ -26,7 +25,7 @@ pub struct Camera {
     /// Actual [Camera2D] object sent to Macroquad
     #[new(value = "Camera2D {
         zoom: vec2(2.0 / screen_width(), -2.0 / screen_height()),
-        target: vec2(screen_width() / 2.0 - SQUARE_SIZE / 2.0, screen_height() / 2.0 - SQUARE_SIZE / 2.0),
+        target: vec2(screen_width() / 2.0, screen_height() / 2.0),
         ..Default::default()
     }")]
     pub camera: Camera2D,
@@ -125,11 +124,8 @@ impl Camera {
                 let extra_space = 500.0;
 
                 self.camera.target = self.camera.target.clamp(
-                    // - SQUARE_SIZE / 2.0 because map is drawn from center, not top left
-                    bounds_top_left + half_vs - SQUARE_SIZE / 2.0 - extra_space,
-                    // + bottom_ui_height()() - SQUARE_SIZE / 2.0 to account for the bottom ui
-                    bounds_bottom_right - half_vs + bottom_ui_height() - SQUARE_SIZE / 2.0
-                        + extra_space,
+                    bounds_top_left + half_vs - extra_space,
+                    bounds_bottom_right - half_vs + bottom_ui_height() + extra_space,
                 );
                 self.camera.zoom = vec2(2.0, -2.0) / viewport_size;
             }

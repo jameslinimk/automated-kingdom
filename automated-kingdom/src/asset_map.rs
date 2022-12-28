@@ -26,9 +26,24 @@ pub fn add_texture(name: &'static str, bytes: &'static [u8]) {
     ASSET_MAP.lock().unwrap().insert(name, texture);
 }
 
-/// Gets a spritesheet from the asset map
-pub fn get_spritesheet(name: &str) -> SpriteSheet {
-    *SPRITESHEET_MAP.lock().unwrap().get(name).unwrap()
+/// Updates a spritesheet from the asset map
+pub fn update_spritesheet(name: &str) {
+    SPRITESHEET_MAP
+        .lock()
+        .unwrap()
+        .get_mut(name)
+        .unwrap()
+        .update();
+}
+
+/// Draws a spritesheet from the asset map
+pub fn draw_spritesheet(name: &str, x: f32, y: f32, width: f32) {
+    SPRITESHEET_MAP
+        .lock()
+        .unwrap()
+        .get(name)
+        .unwrap()
+        .draw(x, y, width)
 }
 
 /// Adds a spritesheet to the asset map

@@ -6,24 +6,24 @@ use macroquad::prelude::{uvec2, UVec2, Vec2};
 use priority_queue::PriorityQueue;
 use rustc_hash::FxHasher;
 
-use crate::hashmap;
 use crate::map::{pos_to_world, Map, Tile};
 use crate::math::distance;
+use crate::{game, hashmap};
 
 /// Gets the manhattan distance between two points
-fn manhattan_distance(from: &UVec2, to: &UVec2) -> u32 {
+fn manhattan_distance(from: UVec2, to: UVec2) -> u32 {
     let x_dis = from.x.abs_diff(to.x);
     let y_dis = from.y.abs_diff(to.y);
     x_dis + y_dis
 }
 
 /// Checks if a point is valid to move to
-fn valid(point: &UVec2, map: &Map) -> bool {
+fn valid(point: UVec2, map: &Map) -> bool {
     point.x < map.width as u32 && point.y < map.height as u32 && map.get(point) == Tile::Air
 }
 
 /// Returns a list of valid moves from a point
-fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
+fn neighbors(point: UVec2, map: &Map) -> Vec<UVec2> {
     let mut children = vec![];
 
     macro_rules! add_if_valid {
@@ -33,7 +33,7 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
                     (point.x as i32 + $x_diff) as u32,
                     (point.y as i32 + $y_diff) as u32,
                 );
-                if valid(&new_point, map) {
+                if valid(new_point, map) {
                     children.push(new_point);
                 }
             }
@@ -52,8 +52,8 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
                 && point.x as i32 + $x_diff < map.width as i32
                 && point.y as i32 + $y_diff < map.height as i32
             {
-                if map.get(&uvec2((point.x as i32 + $x_diff) as u32, point.y)) == Tile::Air
-                    && map.get(&uvec2(point.x, (point.y as i32 + $y_diff) as u32)) == Tile::Air
+                if map.get(uvec2((point.x as i32 + $x_diff) as u32, point.y)) == Tile::Air
+                    && map.get(uvec2(point.x, (point.y as i32 + $y_diff) as u32)) == Tile::Air
                 {
                     add_if_valid!($x_diff, $y_diff);
                 }
@@ -70,11 +70,13 @@ fn neighbors(point: &UVec2, map: &Map) -> Vec<UVec2> {
 }
 
 /// Returns a path from start to goal using the A* algorithm, or `None` if no path is found
-pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
+pub fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
     let mut parents = hashmap! {};
     let mut costs = hashmap! {};
     let mut priority_queue = PriorityQueue::<UVec2, u32, BuildHasherDefault<FxHasher>>::default();
-    let mut current = *start;
+    let mut current = start;
+
+    let map = &game().map;
 
     priority_queue.push(current, 0);
     parents.insert(current, current);
@@ -82,15 +84,15 @@ pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
 
     while let Some((_current, _)) = priority_queue.pop() {
         current = _current;
-        if current == *goal {
+        if current == goal {
             break;
         }
 
-        for neighbor in neighbors(&current, map).iter() {
+        for neighbor in neighbors(current, map).iter() {
             let new_cost = costs[&current] + 1;
             if !costs.contains_key(neighbor) || new_cost < costs[neighbor] {
                 costs.insert(*neighbor, new_cost);
-                let priority = u32::MAX - (new_cost + manhattan_distance(neighbor, goal));
+                let priority = u32::MAX - (new_cost + manhattan_distance(*neighbor, goal));
 
                 priority_queue.push(*neighbor, priority);
                 parents.insert(*neighbor, current);
@@ -99,9 +101,9 @@ pub fn astar(start: &UVec2, goal: &UVec2, map: &Map) -> Option<Vec<Vec2>> {
     }
 
     let mut path = vec![];
-    if costs.contains_key(goal) {
-        while current != *start {
-            path.push(pos_to_world(&current));
+    if costs.contains_key(&goal) {
+        while current != start {
+            path.push(pos_to_world(current));
             current = parents[&current];
         }
         path.push(pos_to_world(start));

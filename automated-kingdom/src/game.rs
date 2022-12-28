@@ -1,6 +1,6 @@
 use derive_new::new;
 
-use crate::asset_map::add_texture;
+use crate::asset_map::{add_spritesheet, add_texture};
 use crate::conf::SILVER_FONT;
 use crate::map::Map;
 use crate::objects::camera::Camera;
@@ -39,21 +39,34 @@ impl Game {
 
         /// Loads textures from a list of key-value pairs
         macro_rules! load_textures {
-            ($($key:expr => $value:expr),*) => {{
+            ($($key:expr => $path:expr),*) => {
                 $(
-                    add_texture($key, include_bytes!(concat!("../assets/sprites/", $value)));
+                    add_texture($key, include_bytes!(concat!("../assets/sprites/", $path)));
                 )*
-            }};
+            };
         }
 
         load_textures!(
             "wall" => "wall.png",
-            "blue_worker_icon" => "workers/blue/icon.png",
-            "blue_worker_idle_up" => "workers/blue/idle_up.png",
-            "blue_worker_idle_down" => "workers/blue/idle_down.png",
-            "blue_worker_walk_up" => "workers/blue/walk_up.png",
-            "blue_worker_walk_down" => "workers/blue/walk_down.png"
+            "blue_worker_icon" => "workers/blue/icon.png"
         );
+
+        /// Loads spritesheets from a list of key-value pairs
+        macro_rules! load_spritesheet {
+            ($name:expr, $path:expr, $fps:expr) => {
+                add_spritesheet(
+                    $name,
+                    include_bytes!(concat!("../assets/sprites/", $path)),
+                    32,
+                    1.0 / $fps as f32,
+                );
+            };
+        }
+
+        load_spritesheet!("blue_worker_idle_up", "workers/blue/idle_up.png", 0);
+        load_spritesheet!("blue_worker_idle_down", "workers/blue/idle_down.png", 15);
+        load_spritesheet!("blue_worker_walk_up", "workers/blue/walk_up.png", 12);
+        load_spritesheet!("blue_worker_walk_down", "workers/blue/walk_down.png", 12);
 
         self.map.update_camera_bounds();
     }

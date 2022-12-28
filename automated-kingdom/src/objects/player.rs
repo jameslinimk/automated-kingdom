@@ -2,8 +2,6 @@ use derive_new::new;
 use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED};
 use macroquad::window::{screen_height, screen_width};
 
-use crate::astar::astar;
-use crate::game::game;
 use crate::map::world_to_pos;
 use crate::objects::worker::Worker;
 use crate::screen_size;
@@ -38,12 +36,7 @@ impl Player {
 
         if is_mouse_button_pressed(MouseButton::Right) {
             if let Some(worker) = self.selected_worker() {
-                let path = astar(
-                    &world_to_pos(&worker.rect.center()),
-                    &world_to_pos(&rel_mouse_pos()),
-                    &game().map,
-                );
-                worker.path = path;
+                worker.path_to(world_to_pos(rel_mouse_pos()))
             }
         }
     }
