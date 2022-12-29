@@ -17,7 +17,6 @@ path = "src/test_client.rs"
 chrono = { version = "0.4.23", features = ["clock"] }
 colored = "2.0.0"
 derive-new = "0.5.9"
-glam = { version = "0.22.0", features = ["serde"] }
 lazy_static = "1.4.0"
 rand = "0.8.5"
 rmp-serde = "1.1.1"

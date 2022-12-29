@@ -19,12 +19,17 @@ pub struct CollisionRect {
 impl CollisionRect {
     /// Creates a new [CollisionRect] with the given center and size
     pub fn new_center(center: Vec2, width: f32, height: f32) -> CollisionRect {
-        CollisionRect {
-            x: center.x - width / 2.0,
-            y: center.y - height / 2.0,
+        CollisionRect::new(
+            center.x - width / 2.0,
+            center.y - height / 2.0,
             width,
             height,
-        }
+        )
+    }
+
+    /// Creates a new [CollisionRect] with the given top left corner and size
+    pub fn new_vec2(top_left: Vec2, width: f32, height: f32) -> CollisionRect {
+        CollisionRect::new(top_left.x, top_left.y, width, height)
     }
 
     /// Draws the rectangle to the screen

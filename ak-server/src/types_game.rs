@@ -1,5 +1,4 @@
 use derive_new::new;
-use glam::Vec2;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -10,20 +9,21 @@ pub enum Color {
     Yellow,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
-pub struct Worker {
-    pos: Vec2,
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ServerWorker {
+    pub pos: (f32, f32),
+    pub sprite: String,
 }
 
 #[derive(new, Clone, Serialize, Deserialize)]
-pub struct Player {
+pub struct ServerPlayer {
     pub uuid: u64,
 
     #[new(value = "0")]
     pub ping: u16,
 
     #[new(value = "vec![]")]
-    pub workers: Vec<Worker>,
+    pub workers: Vec<ServerWorker>,
 
     pub color: Color,
 }
@@ -35,14 +35,14 @@ pub enum Tile {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Map {
+pub struct ServerMap {
     pub tiles: Vec<Vec<Tile>>,
     pub width: usize,
     pub height: usize,
 }
-impl Map {
-    pub fn random() -> Map {
-        Map {
+impl ServerMap {
+    pub fn random() -> ServerMap {
+        ServerMap {
             tiles: vec![],
             width: 0,
             height: 0,

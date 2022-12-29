@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use ak_server::game::{in_game, Game, CONN_GAMES, GAMES};
 use ak_server::hashmap;
 use ak_server::types_client::ClientRequest;
-use ak_server::types_game::{Color, Player};
+use ak_server::types_game::{Color, ServerPlayer};
 use ak_server::types_server::{ErrorCode, ResponseData};
 use lazy_static::lazy_static;
 use rustc_hash::FxHashMap;
@@ -58,7 +58,7 @@ pub fn handle_request(uuid: u64, request: &ClientRequest) -> ResponseData {
                 return ResponseData::Error(ErrorCode::AlreadyInGame);
             }
 
-            let game = Game::new(vec![Player::new(uuid, Color::Blue)]);
+            let game = Game::new(vec![ServerPlayer::new(uuid, Color::Blue)]);
             let game_uuid = game.uuid;
 
             let mut games = GAMES.lock().unwrap();

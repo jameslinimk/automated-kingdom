@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::hashmap;
-use crate::types_game::{Map, Player};
+use crate::types_game::{ServerMap, ServerPlayer};
 
 lazy_static! {
     /// Map of every game to its id
@@ -26,8 +26,8 @@ pub struct Game {
     #[new(value = "Uuid::new_v4()")]
     pub uuid: Uuid,
 
-    pub players: Vec<Player>,
+    pub players: Vec<ServerPlayer>,
 
-    #[new(value = "Map::random()")]
-    pub map: Map,
+    #[new(value = "ServerMap::random()")]
+    pub map: ServerMap,
 }

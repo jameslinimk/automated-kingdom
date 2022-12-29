@@ -26,7 +26,6 @@ dependencies = [
  "chrono",
  "colored",
  "derive-new",
- "glam 0.22.0",
  "lazy_static",
  "rand",
  "rmp-serde",
@@ -301,15 +300,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "518faa5064866338b013ff9b2350dc318e14cc4fcd6cb8206d7e7c9886c98815"
 
 [[package]]
-name = "glam"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12f597d56c1bd55a811a1be189459e8fad2bbc272616375602443bdfb37fa774"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -464,7 +454,7 @@ checksum = "f3790f7fd2e4c480108cbfc86488f023b72e1e0bb6ffd5c6cba38049c7e2fbfc"
 dependencies = [
  "bumpalo",
  "fontdue",
- "glam 0.21.3",
+ "glam",
  "image",
  "macroquad_macro",
  "miniquad",

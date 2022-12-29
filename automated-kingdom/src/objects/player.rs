@@ -1,3 +1,4 @@
+use ak_server::types_game::{Color, ServerPlayer};
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED};
 use macroquad::window::{screen_height, screen_width};
@@ -18,8 +19,27 @@ pub struct Player {
 
     #[new(value = "None")]
     pub selected_worker: Option<usize>,
+
+    #[new(value = "Color::Blue")]
+    pub color: Color,
+
+    #[new(value = "0")]
+    pub uuid: u64,
 }
 impl Player {
+    pub fn as_server(&self) -> ServerPlayer {
+        ServerPlayer {
+            uuid: self.uuid,
+            ping: 0,
+            workers: self
+                .workers
+                .iter()
+                .map(|worker| worker.as_server())
+                .collect(),
+            color: self.color,
+        }
+    }
+
     pub fn update(&mut self) {
         if is_mouse_button_pressed(MouseButton::Left) {
             for (i, worker) in self.workers.iter().enumerate() {

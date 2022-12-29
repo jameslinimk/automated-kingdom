@@ -1,5 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
+use ak_server::types_game::ServerWorker;
 use derive_new::new;
 use macroquad::color_u8;
 use macroquad::prelude::{vec2, Color, UVec2, Vec2, RED, WHITE};
@@ -34,8 +35,8 @@ pub fn workers_iter_mut() -> impl Iterator<Item = &'static mut Worker> {
     game().players.iter_mut().flat_map(|p| p.workers.iter_mut())
 }
 
-#[derive(Clone, Copy, Debug)]
-pub enum Direction {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WalkDirection {
     Up,
     Down,
     Left,
@@ -64,7 +65,7 @@ pub struct Worker {
     pub speed: f32,
 
     #[new(value = "None")]
-    pub direction: Option<Direction>,
+    pub direction: Option<WalkDirection>,
 }
 impl PartialEq for Worker {
     fn eq(&self, other: &Self) -> bool {
@@ -72,6 +73,13 @@ impl PartialEq for Worker {
     }
 }
 impl Worker {
+    pub fn as_server(&self) -> ServerWorker {
+        ServerWorker {
+            pos: self.rect.top_left().into(),
+            sprite: todo!(),
+        }
+    }
+
     pub fn update(&mut self) {
         /* --------------------------------- Pathing -------------------------------- */
         if let Some(path) = &mut self.path {
@@ -82,16 +90,35 @@ impl Worker {
                 let angle = angle(&self.rect.top_left(), &next_pos);
                 let speed = self.speed * get_frame_time();
 
-                let dir = self.rect.top_left().signum() - next_pos.signum();
-                self.direction = Some(match (dir.x as i8, dir.y as i8) {
-                    (0, 1) => Direction::Up,
-                    (0, -1) => Direction::Down,
-                    (1, 0) => Direction::Left,
-                    (-1, 0) => Direction::Right,
-                    _ => unreachable!(),
-                });
+                // Approximate angle to a direction
+                let angle_deg = angle.to_degrees().round() as i32;
+                let angle_deg = if angle_deg < 0 {
+                    angle_deg + 360
+                } else {
+                    angle_deg
+                };
 
-                println!("self.direction: {:?}", self.direction);
+                macro_rules! diag {
+                    ($first:expr, $second:expr) => {
+                        if self.direction == Some($first) {
+                            Some($first)
+                        } else {
+                            Some($second)
+                        }
+                    };
+                }
+
+                self.direction = match angle_deg {
+                    0 => Some(WalkDirection::Right),
+                    90 => Some(WalkDirection::Up),
+                    180 => Some(WalkDirection::Left),
+                    270 => Some(WalkDirection::Down),
+                    45 => diag!(WalkDirection::Up, WalkDirection::Right),
+                    135 => diag!(WalkDirection::Up, WalkDirection::Left),
+                    225 => diag!(WalkDirection::Down, WalkDirection::Left),
+                    315 => diag!(WalkDirection::Down, WalkDirection::Right),
+                    _ => None,
+                };
 
                 if dist > speed {
                     self.rect
@@ -131,7 +158,7 @@ impl Worker {
                     color_u8!(128, 128, 128, 128),
                 );
 
-                let time = path_time(&self.rect.center(), self.speed, path);
+                let time = path_time(&self.rect.top_left(), self.speed, path);
                 let font_size = 23.0;
                 draw_text_center(
                     &format!("{:.2}", time),
