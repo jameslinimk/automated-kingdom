@@ -68,6 +68,18 @@ macro_rules! hashset {
     };
 }
 
+/// Derives [PartialEq] for a struct, comparing only the `id` field
+#[macro_export]
+macro_rules! derive_id_eq {
+    ($struct:ident) => {
+        impl PartialEq for $struct {
+            fn eq(&self, other: &Self) -> bool {
+                self.id == other.id
+            }
+        }
+    };
+}
+
 /// Draw text centered at a given position
 pub fn draw_text_center(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
     let measurements = measure_text(text, Some(*SILVER_FONT), font_size as u16, 1.0);
@@ -122,7 +134,7 @@ pub fn draw_text_within_rect(text: &str, rect: &CollisionRect, font_size: f32, c
     }
 }
 
-// Returns a position relative to the screen
+/// Returns a position relative to the screen
 pub fn relative_pos(pos: Vec2) -> Vec2 {
     game().camera.camera.screen_to_world(pos)
 }

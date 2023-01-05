@@ -11,6 +11,7 @@ lazy_static! {
         load_ttf_font_from_bytes(include_bytes!("../assets/fonts/silver.ttf")).unwrap();
 }
 
+/// The size of the screen, 1280x720 for small, 1920x1080 for medium, else larger
 #[derive(Clone, Copy)]
 pub enum ScreenSize {
     Small,
@@ -18,6 +19,7 @@ pub enum ScreenSize {
     Large,
 }
 
+/// Returns the size of the screen, returns [ScreenSize::Small] if the screen is smaller than 1280x720, [ScreenSize::Medium] if the screen is smaller than 1920x1080, else [ScreenSize::Large]
 pub fn screen_size() -> ScreenSize {
     if screen_width() < 1280.0 || screen_height() < 720.0 {
         return ScreenSize::Small;
@@ -28,6 +30,7 @@ pub fn screen_size() -> ScreenSize {
     ScreenSize::Large
 }
 
+/// Will return `$small` if the screen is smaller than 1280x720, `$medium` if the screen is smaller than 1920x1080, else `$large`
 #[macro_export]
 macro_rules! screen_size {
     ($small:expr, $medium:expr, $large:expr) => {

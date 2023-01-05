@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use ak_server::types_game::ServerWorker;
+use ak_server::types_game::{ServerWorker, Sprite, Texture};
 use derive_new::new;
 use macroquad::color_u8;
 use macroquad::prelude::{vec2, Color, UVec2, Vec2, RED, WHITE};
@@ -9,6 +9,7 @@ use macroquad::time::get_frame_time;
 
 use crate::astar::{astar, path_time};
 use crate::conf::SQUARE_SIZE;
+use crate::derive_id_eq;
 use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::map::world_to_pos;
@@ -66,17 +67,18 @@ pub struct Worker {
 
     #[new(value = "None")]
     pub direction: Option<WalkDirection>,
+
+    #[new(value = "Texture::BlueWorkerIcon.as_server()")]
+    pub sprite: Sprite,
 }
-impl PartialEq for Worker {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
-    }
-}
+
+derive_id_eq!(Worker);
+
 impl Worker {
     pub fn as_server(&self) -> ServerWorker {
         ServerWorker {
             pos: self.rect.top_left().into(),
-            sprite: todo!(),
+            sprite: self.sprite,
         }
     }
 
@@ -118,6 +120,14 @@ impl Worker {
                     225 => diag!(WalkDirection::Down, WalkDirection::Left),
                     315 => diag!(WalkDirection::Down, WalkDirection::Right),
                     _ => None,
+                };
+
+                self.sprite = match self.direction {
+                    Some(WalkDirection::Up) => Texture::BlueWorkerWalkUp.as_server(),
+                    Some(WalkDirection::Down) => Texture::BlueWorkerWalkDown.as_server(),
+                    Some(WalkDirection::Left) => Texture::BlueWorkerWalkUp.as_server(),
+                    Some(WalkDirection::Right) => Texture::BlueWorkerWalkDown.as_server(),
+                    None => Texture::BlueWorkerIdleDown.as_server(),
                 };
 
                 if dist > speed {

@@ -1,11 +1,12 @@
+use ak_server::types_game::Texture;
 use derive_new::new;
 
-use crate::asset_map::add_texture;
 use crate::conf::SILVER_FONT;
 use crate::map::Map;
 use crate::objects::camera::Camera;
 use crate::objects::player::Player;
 use crate::objects::worker::workers_iter_mut;
+use crate::texture_map::load_texture;
 
 static mut GAME: Option<Game> = None;
 
@@ -41,18 +42,18 @@ impl Game {
         macro_rules! load_textures {
             ($($key:expr => $path:expr),*) => {
                 $(
-                    add_texture($key, include_bytes!(concat!("../assets/sprites/", $path)));
+                    load_texture($key, include_bytes!(concat!("../assets/sprites/", $path)));
                 )*
             };
         }
 
         load_textures!(
-            "wall" => "wall.png",
-            "blue_worker_icon" => "workers/blue/icon.png",
-            "blue_worker_idle_down" => "workers/blue/idle_down.png",
-            "blue_worker_idle_up" => "workers/blue/idle_up.png",
-            "blue_worker_walk_down" => "workers/blue/walk_down.png",
-            "blue_worker_walk_up" => "workers/blue/walk_up.png"
+            Texture::Wall => "wall.png",
+            Texture::BlueWorkerIcon => "workers/blue/icon.png",
+            Texture::BlueWorkerIdleDown => "workers/blue/idle_down.png",
+            Texture::BlueWorkerIdleUp => "workers/blue/idle_up.png",
+            Texture::BlueWorkerWalkDown => "workers/blue/walk_down.png",
+            Texture::BlueWorkerWalkUp => "workers/blue/walk_up.png"
         );
 
         self.map.update_camera_bounds();

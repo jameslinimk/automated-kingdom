@@ -23,7 +23,7 @@ pub fn main() {
         // Get first 8 bytes of the reader (length of the rest of the reader)
         let mut buffer = [0; 8];
         reader.read_exact(&mut buffer).unwrap();
-        let res_len = usize::from_ne_bytes(buffer);
+        let res_len = usize::from_le_bytes(buffer);
 
         // Get the rest of the reader
         let mut res = vec![0; res_len];

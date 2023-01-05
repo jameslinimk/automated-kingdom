@@ -115,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let mut response = rmp_serde::to_vec(&response).unwrap();
 
                 // Prepend the length of the response to the response
-                response.splice(0..0, response.len().to_ne_bytes().iter().copied());
+                response.splice(0..0, response.len().to_le_bytes().iter().copied());
 
                 if let Err(err) = socket.write_all(&response).await {
                     close_return!("Failed to write to socket; {:?}", err);

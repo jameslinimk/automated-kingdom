@@ -1,10 +1,11 @@
+use ak_server::types_game::Texture;
 use derive_new::new;
 use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, RED, WHITE};
 use macroquad::texture::{draw_texture, DrawTextureParams};
 
-use crate::asset_map::get_texture;
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
+use crate::texture_map::TextureMap;
 use crate::util::{draw_rel_rectangle, draw_rel_texture_ex};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
@@ -35,7 +36,7 @@ impl Map {
                 let world_pos = pos_to_world(uvec2(x as u32, y as u32));
                 match tile {
                     Tile::Wall => {
-                        draw_texture(get_texture("wall"), world_pos.x, world_pos.y, WHITE);
+                        draw_texture(Texture::Wall.texture(), world_pos.x, world_pos.y, WHITE);
                     }
                     Tile::Air => {}
                 }
@@ -58,7 +59,7 @@ impl Map {
                 match tile {
                     Tile::Wall => {
                         draw_rel_texture_ex(
-                            get_texture("wall"),
+                            Texture::Wall.texture(),
                             margin + x as f32 * new_square_size,
                             margin + y as f32 * new_square_size,
                             DrawTextureParams {
