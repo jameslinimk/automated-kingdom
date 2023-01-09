@@ -1,10 +1,20 @@
 import { readdirSync } from "fs"
 import Jimp from "jimp"
 
-const basePath = "../assets/sprites/workers"
+const start = performance.now()
+
+const basePath = "./"
+const outPath = "../assets/sprites/workers"
+
+/**
+ * First color is the base color, the rest are the colors to replace it with
+ */
 const colors = ["blue", "green", "red", "yellow"]
 
-const hexToJimp = (hex: string) => {
+/**
+ * Converts a hex string to Jimp color (number)
+ */
+const htj = (hex: string) => {
     const r = parseInt(hex.slice(1, 3), 16)
     const g = parseInt(hex.slice(3, 5), 16)
     const b = parseInt(hex.slice(5, 7), 16)
@@ -18,40 +28,49 @@ const colorReplace: {
         yellow: number
     }
 } = {
-    [hexToJimp("#116ec9")]: {
-        green: hexToJimp("#293900"),
-        red: hexToJimp("#3a0000"),
-        yellow: hexToJimp("#3a3a00"),
+    [htj("#116ec9")]: {
+        green: htj("#1ec724"),
+        red: htj("#e64237"),
+        yellow: htj("#c9c638"),
     },
-    [hexToJimp("1b81e6")]: {
-        green: hexToJimp("#293900"),
-        red: hexToJimp("#3a0000"),
-        yellow: hexToJimp("#3a3a00"),
+    [htj("#1b81e6")]: {
+        green: htj("#67f06c"),
+        red: htj("#f5695f"),
+        yellow: htj("#e8e44d"),
     },
-    [hexToJimp("0d87ff")]: {
-        green: hexToJimp("#293900"),
-        red: hexToJimp("#3a0000"),
-        yellow: hexToJimp("#3a3a00"),
+    [htj("#0d87ff")]: {
+        green: htj("#57e65c"),
+        red: htj("#fa5b50"),
+        yellow: htj("#fffb54"),
     },
 }
 
-const files = readdirSync(`${basePath}/${colors[0]}`)
+for (const baseFile of readdirSync(`${basePath}/${colors[0]}`)) {
+    const base = `${basePath}/${colors[0]}/${baseFile}`
 
-// Jimp.read(path)
-//     .then((image) => {
-//         image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
-//             const color = image.getPixelColor(x, y)
-//             const newColor = colorReplace[color]
+    for (const color of colors) {
+        Jimp.read(base)
+            .then((image) => {
+                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, i) {
+                    const r = this.bitmap.data[i + 0]
+                    const g = this.bitmap.data[i + 1]
+                    const b = this.bitmap.data[i + 2]
+                    const col = Jimp.rgbaToInt(r, g, b, 255)
 
-//             if (newColor) {
-//                 image.setPixelColor(newColor, x, y)
-//             }
-//         })
-//         return image.writeAsync("./output.png")
-//     })
-//     .then(() => {
-//         console.log("Image successfully processed!")
-//     })
-//     .catch((err) => {
-//         console.error(err)
-//     })
+                    const newColor = colorReplace?.[col]?.[color]
+                    if (newColor) {
+                        const nc = Jimp.intToRGBA(newColor)
+                        this.bitmap.data[i + 0] = nc.r
+                        this.bitmap.data[i + 1] = nc.g
+                        this.bitmap.data[i + 2] = nc.b
+                    }
+                })
+                image.write(`${outPath}/${color}/${baseFile}`)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+}
+
+console.log(`Done!, took ${(performance.now() - start).toFixed(2)}ms`)
