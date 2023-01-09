@@ -1,9 +1,9 @@
 use std::sync::Mutex;
 
-use ak_server::types_game::Texture;
+use ak_server::types_game::{Sprite, Texture};
 use lazy_static::lazy_static;
-use macroquad::prelude::ImageFormat;
-use macroquad::texture::{FilterMode, Texture2D};
+use macroquad::prelude::{ImageFormat, Rect, WHITE};
+use macroquad::texture::{draw_texture, draw_texture_ex, DrawTextureParams, FilterMode, Texture2D};
 use rustc_hash::FxHashMap;
 
 use crate::hashmap;
@@ -13,7 +13,7 @@ lazy_static! {
     static ref TEXTURE_MAP: Mutex<FxHashMap<Texture, Texture2D>> = Mutex::from(hashmap! {});
 }
 
-/// A trait for getting a texture from the [TEXTURE_MAP]
+/// trait for getting a texture from the [TEXTURE_MAP]
 pub trait TextureMap {
     fn texture(&self) -> Texture2D;
 }
@@ -21,6 +21,44 @@ impl TextureMap for Texture {
     /// Gets the given texture from the [TEXTURE_MAP]
     fn texture(&self) -> Texture2D {
         *TEXTURE_MAP.lock().unwrap().get(self).unwrap()
+    }
+}
+
+/// Trait for drawing [Sprite]'s sent from server in the game
+pub trait DrawSprite {
+    fn draw(&self, x: f32, y: f32);
+}
+impl DrawSprite for Sprite {
+    /// Draw the given sprite at the given top-left position
+    fn draw(&self, x: f32, y: f32) {
+        match self {
+            Sprite::Sprite(texture) => {
+                let texture = texture.texture();
+                draw_texture(texture, x, y, WHITE);
+            }
+
+            Sprite::SpriteSheet {
+                texture,
+                frames,
+                current_frame,
+            } => {
+                let base_texture = texture.texture();
+                let w = base_texture.width() / *frames as f32;
+                let h = base_texture.height();
+
+                let rect = Rect::new(*current_frame as f32 * w, 0.0, w, h);
+                draw_texture_ex(
+                    base_texture,
+                    x,
+                    y,
+                    WHITE,
+                    DrawTextureParams {
+                        source: Some(rect),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
     }
 }
 

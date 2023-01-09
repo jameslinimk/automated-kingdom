@@ -35,7 +35,14 @@ impl Texture {
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Sprite {
     Sprite(Texture),
-    SpriteSheet { texture: Texture, frame: u16 },
+    SpriteSheet {
+        /// Base texture
+        texture: Texture,
+        /// Amount of frames in the spritesheet
+        frames: u16,
+        /// Current frame of the spritesheet
+        current_frame: u16,
+    },
 }
 
 #[derive(Clone, Serialize, Deserialize)]

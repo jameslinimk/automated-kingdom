@@ -14,6 +14,7 @@ use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::map::world_to_pos;
 use crate::math::{angle, distance, project};
+use crate::spritesheet::SpriteSheet;
 use crate::util::draw_text_center;
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
@@ -69,7 +70,7 @@ pub struct Worker {
     pub direction: Option<WalkDirection>,
 
     #[new(value = "Texture::BlueWorkerIcon.as_server()")]
-    pub sprite: Sprite,
+    pub sprite: SpriteSheet,
 }
 
 derive_id_eq!(Worker);
@@ -78,7 +79,7 @@ impl Worker {
     pub fn as_server(&self) -> ServerWorker {
         ServerWorker {
             pos: self.rect.top_left().into(),
-            sprite: self.sprite,
+            sprite: self.sprite.as_server(),
         }
     }
 
