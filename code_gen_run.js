@@ -25,4 +25,5 @@ const explore = async (path) => {
     }
 };
 await explore("./");
+await exec("cargo fmt");
 //# sourceMappingURL=code_gen_run.js.map

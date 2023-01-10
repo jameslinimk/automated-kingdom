@@ -32,4 +32,4 @@ async fn main() {
         game().draw();
         next_frame().await;
     }
-}
+}

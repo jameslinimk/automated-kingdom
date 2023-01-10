@@ -1,6 +1,5 @@
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum Color {
     Blue,
@@ -8,12 +7,10 @@ pub enum Color {
     Green,
     Yellow,
 }
-
 #[rustfmt::skip]
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Texture {
     Wall,
-
     // [code-gen] workers
     BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,
     RedWorkerIcon, RedWorkerIdleDown, RedWorkerIdleUp, RedWorkerIdleLeft, RedWorkerIdleRight, RedWorkerWalkDown, RedWorkerWalkUp, RedWorkerWalkLeft, RedWorkerWalkRight,
@@ -27,7 +24,6 @@ impl Texture {
         Sprite::Sprite(*self)
     }
 }
-
 /// A texture or a spritesheet, used to transmit textures to the client and server
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Sprite {
@@ -41,32 +37,25 @@ pub enum Sprite {
         current_frame: u16,
     },
 }
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ServerWorker {
     pub pos: (f32, f32),
     pub sprite: Sprite,
 }
-
 #[derive(new, Clone, Serialize, Deserialize)]
 pub struct ServerPlayer {
     pub uuid: u64,
-
     #[new(value = "0")]
     pub ping: u16,
-
     #[new(value = "vec![]")]
     pub workers: Vec<ServerWorker>,
-
     pub color: Color,
 }
-
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum Tile {
     Wall,
     Air,
 }
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ServerMap {
     pub tiles: Vec<Vec<Tile>>,
@@ -81,4 +70,4 @@ impl ServerMap {
             height: 0,
         }
     }
-}
+}

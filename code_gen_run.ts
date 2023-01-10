@@ -27,3 +27,4 @@ const explore = async (path: string) => {
     }
 }
 await explore("./")
+await exec("cargo fmt")
