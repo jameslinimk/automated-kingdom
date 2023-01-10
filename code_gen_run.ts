@@ -16,8 +16,9 @@ const explore = async (path: string) => {
             if (folder === "code-gen") {
                 for (const file of readdirSync(join(path, folder))) {
                     if (!file.endsWith(".js")) continue
-                    console.log(`Running "cd ${join(path, folder)} && node ${file}"`)
-                    await exec(`cd ${join(path, folder)} && node ${file}`)
+                    console.log(`Running ${join(path, folder, file)}`)
+                    const { default: gen } = await import(`./${join(path, folder, file)}`)
+                    gen()
                 }
                 continue
             }

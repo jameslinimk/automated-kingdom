@@ -1,28 +1,31 @@
-import { resolve } from "path"
-import { capitalize, codeGen, colors, names, pascalToSnakeCase } from "../../code_gen.js"
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
+import { workerColors, workerTextureNames } from "../../ak-server/code-gen/types_game.js"
+import { capitalize, codeGen, pascalToSnake } from "../../code_gen.js"
 
-const start = performance.now()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-codeGen(resolve("../src/game.rs"), (name) => {
-    let newText = ""
-    switch (name) {
-        case "workers": {
-            newText = colors
-                .map((color) =>
-                    names
-                        .map(
-                            (name) =>
-                                `Texture::${capitalize(color)}Worker${name} => "workers/${color}/${pascalToSnakeCase(
-                                    name
-                                )}.png",`
-                        )
-                        .join(" ")
-                )
-                .join("\n")
-            break
+export default () => {
+    codeGen(resolve(__dirname, "../src/game.rs"), (name) => {
+        let newText = ""
+        switch (name) {
+            case "workers": {
+                newText = workerColors
+                    .map((color) =>
+                        workerTextureNames
+                            .map(
+                                (name) =>
+                                    `Texture::${capitalize(color)}Worker${name} => "workers/${color}/${pascalToSnake(
+                                        name
+                                    )}.png",`
+                            )
+                            .join(" ")
+                    )
+                    .join("\n")
+                break
+            }
         }
-    }
-    return newText
-})
-
-console.log(`Done!, took ${(performance.now() - start).toFixed(2)}ms`)
+        return newText
+    })
+}

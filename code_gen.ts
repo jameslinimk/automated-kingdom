@@ -1,19 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 
 export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-export const pascalToSnakeCase = (str: string) => str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase()
-export const colors = ["blue", "red", "green", "yellow"]
-export const names = [
-    "Icon",
-    "IdleDown",
-    "IdleUp",
-    "IdleLeft",
-    "IdleRight",
-    "WalkDown",
-    "WalkUp",
-    "WalkLeft",
-    "WalkRight",
-]
+export const pascalToSnake = (str: string) => str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase()
 
 export const codeGen = (filePath: string, handler: (name: string) => string) => {
     const file = readFileSync(filePath, "utf8")
@@ -37,6 +25,12 @@ export const codeGen = (filePath: string, handler: (name: string) => string) => 
         }
     })
 
-    writeFileSync(filePath, newFile.filter((l) => l).join("\n"))
+    writeFileSync(
+        filePath,
+        newFile
+            .filter((l) => l !== null)
+            .join("\n")
+            .replace(/\r?\n/g, "\r\n")
+    )
     // console.log(newFile.filter((l) => l).join("\n"))
 }

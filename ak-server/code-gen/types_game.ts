@@ -1,19 +1,34 @@
-import { resolve } from "path"
-import { capitalize, codeGen, colors, names } from "../../code_gen.js"
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
+import { capitalize, codeGen } from "../../code_gen.js"
 
-const start = performance.now()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-codeGen(resolve("../src/types_game.rs"), (name) => {
-    let newText = ""
-    switch (name) {
-        case "workers": {
-            newText = colors
-                .map((color) => names.map((name) => `${capitalize(color)}Worker${name},`).join(" "))
-                .join("\n")
-            break
+export const workerColors = ["blue", "red", "green", "yellow"]
+export const workerTextureNames = [
+    "Icon",
+    "IdleDown",
+    "IdleUp",
+    "IdleLeft",
+    "IdleRight",
+    "WalkDown",
+    "WalkUp",
+    "WalkLeft",
+    "WalkRight",
+]
+
+export default () => {
+    codeGen(resolve(__dirname, "../src/types_game.rs"), (name) => {
+        let newText = ""
+        switch (name) {
+            case "workers": {
+                newText = workerColors
+                    .map((color) => workerTextureNames.map((name) => `${capitalize(color)}Worker${name},`).join(" "))
+                    .join("\n")
+                break
+            }
         }
-    }
-    return newText
-})
-
-console.log(`Done!, took ${(performance.now() - start).toFixed(2)}ms`)
+        return newText
+    })
+}
