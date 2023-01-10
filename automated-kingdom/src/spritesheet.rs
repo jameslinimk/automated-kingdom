@@ -6,7 +6,7 @@ use macroquad::time::get_time;
 
 use crate::texture_map::TextureMap;
 
-#[derive(Clone, Copy, new)]
+#[derive(Debug, Clone, Copy, new)]
 pub struct SpriteSheet {
     /// Texture containing all frames of the sprite sheet
     pub texture: Texture,

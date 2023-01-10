@@ -9,20 +9,17 @@ pub enum Color {
     Yellow,
 }
 
+#[rustfmt::skip]
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Texture {
-    /// Wall texture
     Wall,
-    /// Blue worker icon
-    BlueWorkerIcon,
-    /// (Spritesheet) Blue worker idle down
-    BlueWorkerIdleDown,
-    /// (Spritesheet) Blue worker idle up
-    BlueWorkerIdleUp,
-    /// (Spritesheet) Blue worker walk down
-    BlueWorkerWalkDown,
-    /// (Spritesheet) Blue worker walk up
-    BlueWorkerWalkUp,
+
+    // [code-gen] workers
+    BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,
+    RedWorkerIcon, RedWorkerIdleDown, RedWorkerIdleUp, RedWorkerIdleLeft, RedWorkerIdleRight, RedWorkerWalkDown, RedWorkerWalkUp, RedWorkerWalkLeft, RedWorkerWalkRight,
+    GreenWorkerIcon, GreenWorkerIdleDown, GreenWorkerIdleUp, GreenWorkerIdleLeft, GreenWorkerIdleRight, GreenWorkerWalkDown, GreenWorkerWalkUp, GreenWorkerWalkLeft, GreenWorkerWalkRight,
+    YellowWorkerIcon, YellowWorkerIdleDown, YellowWorkerIdleUp, YellowWorkerIdleLeft, YellowWorkerIdleRight, YellowWorkerWalkDown, YellowWorkerWalkUp, YellowWorkerWalkLeft, YellowWorkerWalkRight,
+    // [code-gen] end
 }
 impl Texture {
     /// Returns the texture as a [Sprite]
@@ -84,4 +81,4 @@ impl ServerMap {
             height: 0,
         }
     }
-}
+}

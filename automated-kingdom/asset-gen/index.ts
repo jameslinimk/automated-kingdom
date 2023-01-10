@@ -51,7 +51,7 @@ for (const baseFile of readdirSync(`${basePath}/${colors[0]}`)) {
     for (const color of colors) {
         Jimp.read(base)
             .then((image) => {
-                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, i) {
+                image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (_x, _y, i) {
                     const r = this.bitmap.data[i + 0]
                     const g = this.bitmap.data[i + 1]
                     const b = this.bitmap.data[i + 2]

@@ -6,16 +6,17 @@ use macroquad::color_u8;
 use macroquad::prelude::{vec2, Color, UVec2, Vec2, RED, WHITE};
 use macroquad::shapes::draw_line;
 use macroquad::time::get_frame_time;
+use rustc_hash::FxHashMap;
 
 use crate::astar::{astar, path_time};
 use crate::conf::SQUARE_SIZE;
-use crate::derive_id_eq;
 use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::map::world_to_pos;
 use crate::math::{angle, distance, project};
 use crate::spritesheet::SpriteSheet;
 use crate::util::draw_text_center;
+use crate::{derive_id_eq, hashmap};
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
 
@@ -69,8 +70,13 @@ pub struct Worker {
     #[new(value = "None")]
     pub direction: Option<WalkDirection>,
 
-    #[new(value = "Texture::BlueWorkerIcon.as_server()")]
+    #[new(value = "SpriteSheet::new(Texture::BlueWorkerIcon, 16, 32.0)")]
     pub sprite: SpriteSheet,
+
+    #[new(value = "{
+        hashmap! {}
+    }")]
+    walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 }
 
 derive_id_eq!(Worker);
@@ -123,13 +129,15 @@ impl Worker {
                     _ => None,
                 };
 
-                self.sprite = match self.direction {
-                    Some(WalkDirection::Up) => Texture::BlueWorkerWalkUp.as_server(),
-                    Some(WalkDirection::Down) => Texture::BlueWorkerWalkDown.as_server(),
-                    Some(WalkDirection::Left) => Texture::BlueWorkerWalkUp.as_server(),
-                    Some(WalkDirection::Right) => Texture::BlueWorkerWalkDown.as_server(),
-                    None => Texture::BlueWorkerIdleDown.as_server(),
-                };
+                // TODO finish spritesheets
+
+                // self.sprite = match self.direction {
+                //     Some(WalkDirection::Up) => Texture::BlueWorkerWalkUp.as_server(),
+                //     Some(WalkDirection::Down) => Texture::BlueWorkerWalkDown.as_server(),
+                //     Some(WalkDirection::Left) => Texture::BlueWorkerWalkUp.as_server(),
+                //     Some(WalkDirection::Right) => Texture::BlueWorkerWalkDown.as_server(),
+                //     None => Texture::BlueWorkerIdleDown.as_server(),
+                // };
 
                 if dist > speed {
                     self.rect
