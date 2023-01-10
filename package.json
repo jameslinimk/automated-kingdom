@@ -13,8 +13,8 @@
     "main": "index.js",
     "name": "asset-gen",
     "scripts": {
-        "build": "tsc --watch false",
-        "dev": "tsc"
+        "dev": "tsc",
+        "run": "node ./code_gen_run.js"
     },
     "type": "module",
     "version": "1.0.0"

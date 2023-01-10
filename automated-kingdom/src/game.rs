@@ -75,4 +75,4 @@ impl Game {
         self.players[self.main_player].draw();
         self.map.draw_minimap();
     }
-}
+}
