@@ -1,8 +1,10 @@
 #![feature(option_result_contains)]
 
+use std::env;
+
 use macroquad::window::{next_frame, Conf};
 
-use crate::game::game;
+use crate::game::{game, Game};
 
 pub mod astar;
 pub mod conf;
@@ -26,6 +28,9 @@ fn config() -> Conf {
 
 #[macroquad::main(config)]
 async fn main() {
+    env::set_var("RUST_BACKTRACE", "1");
+
+    Game::preload();
     game().init();
     loop {
         game().update();

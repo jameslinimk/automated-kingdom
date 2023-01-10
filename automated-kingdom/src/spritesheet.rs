@@ -10,8 +10,6 @@ use crate::texture_map::TextureMap;
 pub struct SpriteSheet {
     /// Texture containing all frames of the sprite sheet
     pub texture: Texture,
-    /// Amount of frames in the sprite sheet
-    pub frames: u16,
     /// Duration of a single frame in seconds
     pub frame_duration: f32,
 
@@ -21,8 +19,15 @@ pub struct SpriteSheet {
     current_frame: u16,
     #[new(value = "texture.texture()")]
     base_texture: Texture2D,
+    #[new(value = "(texture.texture().height() / texture.texture().width()) as u16")]
+    frames: u16,
 }
 impl SpriteSheet {
+    /// Creates a new `SpriteSheet` from a given fps
+    pub fn new_fps(texture: Texture, fps: f32) -> SpriteSheet {
+        SpriteSheet::new(texture, 1.0 / fps)
+    }
+
     /// Will draw the current frame of the sprite sheet at given top-left position
     pub fn draw(&self, x: f32, y: f32) {
         let w = self.base_texture.width() / self.frames as f32;

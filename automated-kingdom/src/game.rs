@@ -35,7 +35,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn init(&mut self) {
+    pub fn preload() {
         let _ = *SILVER_FONT;
 
         /// Loads textures from a list of key-value pairs
@@ -58,7 +58,9 @@ impl Game {
             Texture::YellowWorkerIcon => "workers/yellow/icon.png", Texture::YellowWorkerIdleDown => "workers/yellow/idle_down.png", Texture::YellowWorkerIdleUp => "workers/yellow/idle_up.png", Texture::YellowWorkerIdleLeft => "workers/yellow/idle_left.png", Texture::YellowWorkerIdleRight => "workers/yellow/idle_right.png", Texture::YellowWorkerWalkDown => "workers/yellow/walk_down.png", Texture::YellowWorkerWalkUp => "workers/yellow/walk_up.png", Texture::YellowWorkerWalkLeft => "workers/yellow/walk_left.png", Texture::YellowWorkerWalkRight => "workers/yellow/walk_right.png",
             // [code-gen] end
         );
+    }
 
+    pub fn init(&mut self) {
         self.map.update_camera_bounds();
     }
 

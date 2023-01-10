@@ -68,6 +68,35 @@ macro_rules! hashset {
     };
 }
 
+/// Trait to fix `f32.signum` not doing `0.0`
+pub trait FloatSignum {
+    fn sign(&self) -> f32;
+    fn sign_i8(&self) -> i8;
+}
+impl FloatSignum for f32 {
+    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative
+    fn sign(&self) -> f32 {
+        if *self > 0.0 {
+            1.0
+        } else if *self < 0.0 {
+            -1.0
+        } else {
+            0.0
+        }
+    }
+
+    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative but as an [i8]
+    fn sign_i8(&self) -> i8 {
+        if *self > 0.0 {
+            1
+        } else if *self < 0.0 {
+            -1
+        } else {
+            0
+        }
+    }
+}
+
 /// Derives [PartialEq] for a struct, comparing only the `id` field
 #[macro_export]
 macro_rules! derive_id_eq {

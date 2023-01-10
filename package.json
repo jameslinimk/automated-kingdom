@@ -1,9 +1,9 @@
 {
     "author": "Linimik",
+    "description": "Generates images for automated-kingdom",
     "dependencies": {
         "jimp": "^0.16.2"
     },
-    "description": "Generates images for automated-kingdom",
     "devDependencies": {
         "@types/node": "^18.11.18",
         "typescript": "^4.9.4"
@@ -13,8 +13,8 @@
     "main": "index.js",
     "name": "asset-gen",
     "scripts": {
-        "dev": "tsc",
-        "run": "node ./code_gen_run.js"
+        "dev": "pnpm i && tsc",
+        "gen": "node ./code_gen_run.js"
     },
     "type": "module",
     "version": "1.0.0"

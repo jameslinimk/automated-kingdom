@@ -13,6 +13,13 @@ lazy_static! {
     static ref TEXTURE_MAP: Mutex<FxHashMap<Texture, Texture2D>> = Mutex::from(hashmap! {});
 }
 
+/// Adds a texture to the texture map
+pub fn load_texture(name: Texture, bytes: &'static [u8]) {
+    let texture = Texture2D::from_file_with_format(bytes, Some(ImageFormat::Png));
+    texture.set_filter(FilterMode::Nearest);
+    TEXTURE_MAP.lock().unwrap().insert(name, texture);
+}
+
 /// trait for getting a texture from the [TEXTURE_MAP]
 pub trait TextureMap {
     fn texture(&self) -> Texture2D;
@@ -20,7 +27,11 @@ pub trait TextureMap {
 impl TextureMap for Texture {
     /// Gets the given texture from the [TEXTURE_MAP]
     fn texture(&self) -> Texture2D {
-        *TEXTURE_MAP.lock().unwrap().get(self).unwrap()
+        *TEXTURE_MAP
+            .lock()
+            .unwrap()
+            .get(self)
+            .unwrap_or_else(|| panic!("Texture not found for \"{:?}\"", self))
     }
 }
 
@@ -60,11 +71,4 @@ impl DrawSprite for Sprite {
             }
         }
     }
-}
-
-/// Adds a texture to the texture map
-pub fn load_texture(name: Texture, bytes: &'static [u8]) {
-    let texture = Texture2D::from_file_with_format(bytes, Some(ImageFormat::Png));
-    texture.set_filter(FilterMode::Nearest);
-    TEXTURE_MAP.lock().unwrap().insert(name, texture);
 }

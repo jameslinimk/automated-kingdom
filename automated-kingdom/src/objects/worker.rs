@@ -15,7 +15,7 @@ use crate::geometry::CollisionRect;
 use crate::map::world_to_pos;
 use crate::math::{angle, distance, project};
 use crate::spritesheet::SpriteSheet;
-use crate::util::draw_text_center;
+use crate::util::{draw_text_center, FloatSignum};
 use crate::{derive_id_eq, hashmap};
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
@@ -38,7 +38,7 @@ pub fn workers_iter_mut() -> impl Iterator<Item = &'static mut Worker> {
     game().players.iter_mut().flat_map(|p| p.workers.iter_mut())
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Hash, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WalkDirection {
     Up,
     Down,
@@ -70,27 +70,68 @@ pub struct Worker {
     #[new(value = "None")]
     pub direction: Option<WalkDirection>,
 
-    #[new(value = "SpriteSheet::new(Texture::BlueWorkerIcon, 16, 32.0)")]
-    pub sprite: SpriteSheet,
+    #[new(value = "0.0")]
+    hspd: f32,
 
-    #[new(value = "{
-        hashmap! {}
+    #[new(value = "0.0")]
+    vspd: f32,
+
+    #[new(value = "hashmap! {
+        WalkDirection::Up => SpriteSheet::new_fps(Texture::BlueWorkerWalkUp, 12.0),
+        WalkDirection::Down => SpriteSheet::new_fps(Texture::BlueWorkerWalkDown, 12.0),
+        WalkDirection::Left => SpriteSheet::new_fps(Texture::BlueWorkerWalkLeft, 12.0),
+        WalkDirection::Right => SpriteSheet::new_fps(Texture::BlueWorkerWalkRight, 12.0),
     }")]
     walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
+
+    #[new(value = "hashmap! {
+        WalkDirection::Up => SpriteSheet::new_fps(Texture::BlueWorkerIdleUp, 12.0),
+        WalkDirection::Down => SpriteSheet::new_fps(Texture::BlueWorkerIdleDown, 12.0),
+        WalkDirection::Left => SpriteSheet::new_fps(Texture::BlueWorkerIdleLeft, 12.0),
+        WalkDirection::Right => SpriteSheet::new_fps(Texture::BlueWorkerIdleRight, 12.0),
+    }")]
+    idle_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 }
 
 derive_id_eq!(Worker);
 
 impl Worker {
     pub fn as_server(&self) -> ServerWorker {
-        ServerWorker {
-            pos: self.rect.top_left().into(),
-            sprite: self.sprite.as_server(),
-        }
+        todo!();
+        // ServerWorker {
+        //     pos: self.rect.top_left().into(),
+        //     sprite: self.sprite.as_server(),
+        // }
     }
 
-    pub fn update(&mut self) {
-        /* --------------------------------- Pathing -------------------------------- */
+    /// Sets the direction of the worker based on an angle in radians
+    fn update_direction(&mut self) {
+        let normalized = vec2(self.hspd, self.vspd);
+
+        macro_rules! diag {
+            ($first:expr, $second:expr) => {
+                if self.direction == Some($first) {
+                    Some($first)
+                } else {
+                    Some($second)
+                }
+            };
+        }
+
+        self.direction = match (normalized.x.sign_i8(), normalized.y.sign_i8()) {
+            (1, 0) => Some(WalkDirection::Right),
+            (0, -1) => Some(WalkDirection::Up),
+            (-1, 0) => Some(WalkDirection::Left),
+            (0, 1) => Some(WalkDirection::Down),
+            (1, -1) => diag!(WalkDirection::Up, WalkDirection::Right),
+            (-1, -1) => diag!(WalkDirection::Up, WalkDirection::Left),
+            (-1, 1) => diag!(WalkDirection::Down, WalkDirection::Left),
+            (1, 1) => diag!(WalkDirection::Down, WalkDirection::Right),
+            _ => self.direction,
+        };
+    }
+
+    fn update_path(&mut self) {
         if let Some(path) = &mut self.path {
             if !path.is_empty() {
                 let next_pos = path[0];
@@ -99,57 +140,34 @@ impl Worker {
                 let angle = angle(&self.rect.top_left(), &next_pos);
                 let speed = self.speed * get_frame_time();
 
-                // Approximate angle to a direction
-                let angle_deg = angle.to_degrees().round() as i32;
-                let angle_deg = if angle_deg < 0 {
-                    angle_deg + 360
-                } else {
-                    angle_deg
-                };
-
-                macro_rules! diag {
-                    ($first:expr, $second:expr) => {
-                        if self.direction == Some($first) {
-                            Some($first)
-                        } else {
-                            Some($second)
-                        }
-                    };
-                }
-
-                self.direction = match angle_deg {
-                    0 => Some(WalkDirection::Right),
-                    90 => Some(WalkDirection::Up),
-                    180 => Some(WalkDirection::Left),
-                    270 => Some(WalkDirection::Down),
-                    45 => diag!(WalkDirection::Up, WalkDirection::Right),
-                    135 => diag!(WalkDirection::Up, WalkDirection::Left),
-                    225 => diag!(WalkDirection::Down, WalkDirection::Left),
-                    315 => diag!(WalkDirection::Down, WalkDirection::Right),
-                    _ => None,
-                };
-
-                // TODO finish spritesheets
-
-                // self.sprite = match self.direction {
-                //     Some(WalkDirection::Up) => Texture::BlueWorkerWalkUp.as_server(),
-                //     Some(WalkDirection::Down) => Texture::BlueWorkerWalkDown.as_server(),
-                //     Some(WalkDirection::Left) => Texture::BlueWorkerWalkUp.as_server(),
-                //     Some(WalkDirection::Right) => Texture::BlueWorkerWalkDown.as_server(),
-                //     None => Texture::BlueWorkerIdleDown.as_server(),
-                // };
-
+                let new_pos;
                 if dist > speed {
-                    self.rect
-                        .set_top_left(project(&self.rect.top_left(), angle, speed));
+                    new_pos = project(&self.rect.top_left(), angle, speed);
                 } else {
-                    self.rect.set_top_left(next_pos);
+                    new_pos = next_pos;
                     path.remove(0);
                 }
-            } else {
-                self.path = None;
+
+                self.hspd = new_pos.x - self.rect.top_left().x;
+                self.vspd = new_pos.y - self.rect.top_left().y;
+                return;
             }
+
+            self.path = None;
         }
+    }
+
+    pub fn update(&mut self) {
+        self.hspd = 0.0;
+        self.vspd = 0.0;
+
+        self.update_path();
+        self.update_direction();
+        println!("self.direction: {:?}", self.direction);
+
+        // Applying `hspd` and `vspd`
+        self.rect
+            .set_top_left(self.rect.top_left() + vec2(self.hspd, self.vspd))
     }
 
     /// Sets the path to the given goal position on the map
