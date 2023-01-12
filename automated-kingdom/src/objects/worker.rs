@@ -1,9 +1,9 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use ak_server::types_game::{ServerWorker, Sprite, Texture};
+use ak_server::types_game::{ServerWorker, Texture};
 use derive_new::new;
 use macroquad::color_u8;
-use macroquad::prelude::{vec2, Color, UVec2, Vec2, RED, WHITE};
+use macroquad::prelude::{vec2, Color, UVec2, Vec2, WHITE};
 use macroquad::shapes::draw_line;
 use macroquad::time::get_frame_time;
 use rustc_hash::FxHashMap;
@@ -67,8 +67,8 @@ pub struct Worker {
     #[new(value = "200.0")]
     pub speed: f32,
 
-    #[new(value = "None")]
-    pub direction: Option<WalkDirection>,
+    #[new(value = "WalkDirection::Up")]
+    pub direction: WalkDirection,
 
     #[new(value = "0.0")]
     hspd: f32,
@@ -77,18 +77,18 @@ pub struct Worker {
     vspd: f32,
 
     #[new(value = "hashmap! {
-        WalkDirection::Up => SpriteSheet::new_fps(Texture::BlueWorkerWalkUp, 12.0),
-        WalkDirection::Down => SpriteSheet::new_fps(Texture::BlueWorkerWalkDown, 12.0),
-        WalkDirection::Left => SpriteSheet::new_fps(Texture::BlueWorkerWalkLeft, 12.0),
-        WalkDirection::Right => SpriteSheet::new_fps(Texture::BlueWorkerWalkRight, 12.0),
+        WalkDirection::Up => SpriteSheet::new_12(Texture::BlueWorkerWalkUp),
+        WalkDirection::Down => SpriteSheet::new_12(Texture::BlueWorkerWalkDown),
+        WalkDirection::Left => SpriteSheet::new_12(Texture::BlueWorkerWalkLeft),
+        WalkDirection::Right => SpriteSheet::new_12(Texture::BlueWorkerWalkRight),
     }")]
     walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 
     #[new(value = "hashmap! {
-        WalkDirection::Up => SpriteSheet::new_fps(Texture::BlueWorkerIdleUp, 12.0),
-        WalkDirection::Down => SpriteSheet::new_fps(Texture::BlueWorkerIdleDown, 12.0),
-        WalkDirection::Left => SpriteSheet::new_fps(Texture::BlueWorkerIdleLeft, 12.0),
-        WalkDirection::Right => SpriteSheet::new_fps(Texture::BlueWorkerIdleRight, 12.0),
+        WalkDirection::Up => SpriteSheet::new_12(Texture::BlueWorkerIdleUp),
+        WalkDirection::Down => SpriteSheet::new_12(Texture::BlueWorkerIdleDown),
+        WalkDirection::Left => SpriteSheet::new_12(Texture::BlueWorkerIdleLeft),
+        WalkDirection::Right => SpriteSheet::new_12(Texture::BlueWorkerIdleRight),
     }")]
     idle_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 }
@@ -97,32 +97,32 @@ derive_id_eq!(Worker);
 
 impl Worker {
     pub fn as_server(&self) -> ServerWorker {
-        todo!();
-        // ServerWorker {
-        //     pos: self.rect.top_left().into(),
-        //     sprite: self.sprite.as_server(),
-        // }
+        let sprite = self.spritesheet()[&self.direction].as_server();
+        ServerWorker {
+            pos: self.rect.top_left().into(),
+            sprite,
+        }
     }
 
-    /// Sets the direction of the worker based on an angle in radians
+    /// Sets the direction of the worker based the current `hspd` and `vspd`
     fn update_direction(&mut self) {
         let normalized = vec2(self.hspd, self.vspd);
 
         macro_rules! diag {
             ($first:expr, $second:expr) => {
-                if self.direction == Some($first) {
-                    Some($first)
+                if self.direction == $first {
+                    $first
                 } else {
-                    Some($second)
+                    $second
                 }
             };
         }
 
         self.direction = match (normalized.x.sign_i8(), normalized.y.sign_i8()) {
-            (1, 0) => Some(WalkDirection::Right),
-            (0, -1) => Some(WalkDirection::Up),
-            (-1, 0) => Some(WalkDirection::Left),
-            (0, 1) => Some(WalkDirection::Down),
+            (1, 0) => WalkDirection::Right,
+            (0, -1) => WalkDirection::Up,
+            (-1, 0) => WalkDirection::Left,
+            (0, 1) => WalkDirection::Down,
             (1, -1) => diag!(WalkDirection::Up, WalkDirection::Right),
             (-1, -1) => diag!(WalkDirection::Up, WalkDirection::Left),
             (-1, 1) => diag!(WalkDirection::Down, WalkDirection::Left),
@@ -131,6 +131,37 @@ impl Worker {
         };
     }
 
+    /// Returns a mutable reference to either the walk or idle spritesheets depending on the current `hspd` and `vspd`
+    fn spritesheet_mut(&mut self) -> &mut FxHashMap<WalkDirection, SpriteSheet> {
+        if self.hspd == 0.0 && self.vspd == 0.0 {
+            &mut self.idle_spritesheets
+        } else {
+            &mut self.walk_spritesheets
+        }
+    }
+
+    /// Returns a reference to either the walk or idle spritesheets depending on the current `hspd` and `vspd`
+    fn spritesheet(&self) -> &FxHashMap<WalkDirection, SpriteSheet> {
+        if self.hspd == 0.0 && self.vspd == 0.0 {
+            &self.idle_spritesheets
+        } else {
+            &self.walk_spritesheets
+        }
+    }
+
+    /// Returns a reference to the current sprite
+    fn sprite(&self) -> &SpriteSheet {
+        let dir = self.direction;
+        self.spritesheet().get(&dir).unwrap()
+    }
+
+    /// Returns a mutable reference to the current sprite
+    fn sprite_mut(&mut self) -> &mut SpriteSheet {
+        let dir = self.direction;
+        self.spritesheet_mut().get_mut(&dir).unwrap()
+    }
+
+    /// Moves the worker based on the current `path`. Changes `hspd` and `vspd`
     fn update_path(&mut self) {
         if let Some(path) = &mut self.path {
             if !path.is_empty() {
@@ -158,28 +189,31 @@ impl Worker {
     }
 
     pub fn update(&mut self) {
+        // Reset velocities
         self.hspd = 0.0;
         self.vspd = 0.0;
 
+        // Movement
         self.update_path();
         self.update_direction();
-        println!("self.direction: {:?}", self.direction);
 
-        // Applying `hspd` and `vspd`
+        // Updating spritesheet
+        self.sprite_mut().update();
+
+        // Apply `hspd` and `vspd`
         self.rect
             .set_top_left(self.rect.top_left() + vec2(self.hspd, self.vspd))
     }
 
-    /// Sets the path to the given goal position on the map
-    pub fn path_to(&mut self, goal: UVec2) {
-        let path = astar(world_to_pos(self.rect.top_left()), goal);
-        self.path = path;
+    /// Sets the path to the given goal position on the [crate::map::Map]
+    pub fn set_path(&mut self, goal: UVec2) {
+        self.path = astar(world_to_pos(self.rect.top_left()), goal);
     }
 
     pub fn draw(&self, highlight: bool) {
-        self.rect.draw(RED);
+        self.sprite().draw(self.rect.left(), self.rect.top());
         if highlight {
-            self.rect.draw_lines(5.0, color_u8!(255, 255, 255, 200));
+            self.rect.draw_lines(2.5, color_u8!(255, 255, 255, 200));
         }
 
         // Drawing time

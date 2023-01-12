@@ -19,13 +19,23 @@ pub struct SpriteSheet {
     current_frame: u16,
     #[new(value = "texture.texture()")]
     base_texture: Texture2D,
-    #[new(value = "(texture.texture().height() / texture.texture().width()) as u16")]
+    #[new(value = "{
+        let base_texture = texture.texture();
+        let w = base_texture.width();
+        let h = base_texture.height();
+        (w / h) as u16
+    }")]
     frames: u16,
 }
 impl SpriteSheet {
     /// Creates a new `SpriteSheet` from a given fps
     pub fn new_fps(texture: Texture, fps: f32) -> SpriteSheet {
         SpriteSheet::new(texture, 1.0 / fps)
+    }
+
+    /// Creates a new `SpriteSheet` with `12.0` fps
+    pub fn new_12(texture: Texture) -> SpriteSheet {
+        SpriteSheet::new_fps(texture, 12.0)
     }
 
     /// Will draw the current frame of the sprite sheet at given top-left position

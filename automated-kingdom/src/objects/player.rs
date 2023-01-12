@@ -56,7 +56,7 @@ impl Player {
 
         if is_mouse_button_pressed(MouseButton::Right) {
             if let Some(worker) = self.selected_worker() {
-                worker.path_to(world_to_pos(rel_mouse_pos()))
+                worker.set_path(world_to_pos(rel_mouse_pos()))
             }
         }
     }
