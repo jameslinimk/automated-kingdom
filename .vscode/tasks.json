@@ -1,0 +1,56 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "TSC watch",
+			"type": "shell",
+			"command": "tsc -w",
+			"windows": {
+				"command": "tsc -w"
+			},
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": "none",
+			"runOptions": {
+				"runOn": "folderOpen"
+			}
+		},
+		{
+			"label": "Cargo run (automated-kingdom)",
+			"type": "shell",
+			"command": "cargo run --bin automated-kingdom",
+			"windows": {
+				"command": "cargo run --bin automated-kingdom"
+			},
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Cargo run (ak-server)",
+			"type": "shell",
+			"command": "cargo run --bin ak-server",
+			"windows": {
+				"command": "cargo run --bin ak-server"
+			},
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Cargo run (test-client)",
+			"type": "shell",
+			"command": "cargo run --bin test-client",
+			"windows": {
+				"command": "cargo run --bin test-client"
+			},
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build"
+		}
+	]
+}

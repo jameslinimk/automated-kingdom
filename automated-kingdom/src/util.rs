@@ -203,3 +203,11 @@ pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextu
 pub fn rel_mouse_pos() -> Vec2 {
     relative_pos(mouse_position().into())
 }
+
+/// Macro for creating a [Color] from a hex code
+#[macro_export]
+macro_rules! hex_color {
+    ($hex:expr) => {
+        Color::from_hex($hex).unwrap()
+    };
+}

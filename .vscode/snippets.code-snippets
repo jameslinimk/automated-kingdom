@@ -25,8 +25,8 @@
 			"quicklog",
 			"ql"
 		],
-		"description": "Quickly log a variable and its name",
-		"body": "println!(\"$1: {:?}\", $1);"
+		"description": "Quickly log a variable",
+		"body": "println!(\"{:?}\", $1);"
 	},
 	"quick print": {
 		"scope": "rust",

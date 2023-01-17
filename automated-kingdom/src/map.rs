@@ -1,5 +1,6 @@
 use ak_server::types_game::Texture;
 use derive_new::new;
+use macroquad::color_u8;
 use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, RED, WHITE};
 use macroquad::texture::{draw_texture, DrawTextureParams};
 
@@ -51,7 +52,13 @@ impl Map {
         // Border / background
         let width = self.width as f32 * new_square_size;
         let height = self.height as f32 * new_square_size;
-        draw_rel_rectangle(0.0, 0.0, width + margin * 2.0, height + margin * 2.0, RED);
+        draw_rel_rectangle(
+            0.0,
+            0.0,
+            width + margin * 2.0,
+            height + margin * 2.0,
+            color_u8!(150, 111, 51, 255),
+        );
 
         // Minimap
         for (y, row) in self.map.iter().enumerate() {
