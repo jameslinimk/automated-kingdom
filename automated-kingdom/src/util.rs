@@ -1,7 +1,7 @@
 //! Utility functions and macros
 
 use macroquad::prelude::{mouse_position, vec2, Color, Vec2, WHITE};
-use macroquad::shapes::draw_rectangle;
+use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 use macroquad::text::{draw_text_ex, measure_text, TextParams};
 use macroquad::texture::{draw_texture_ex, DrawTextureParams, Texture2D};
 
@@ -183,6 +183,11 @@ pub fn relative_zoom(v: f32) -> f32 {
     v / game().camera.zoom
 }
 
+/// Returns the given [Vec2] without zoom
+pub fn relative_zoom_vec2(v: Vec2) -> Vec2 {
+    v / game().camera.zoom
+}
+
 /// Draw a rectangle relative to the screen
 pub fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
     draw_rectangle(
@@ -194,20 +199,61 @@ pub fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
     );
 }
 
+/// Draw rectangle lines relative to the screen
+pub fn draw_rel_rectangle_lines(x: f32, y: f32, w: f32, h: f32, thickness: f32, color: Color) {
+    draw_rectangle_lines(
+        relative_x(x),
+        relative_y(y),
+        relative_zoom(w),
+        relative_zoom(h),
+        thickness,
+        color,
+    );
+}
+
 /// Draw a texture relative to the screen with extra params
 pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
-    draw_texture_ex(texture, relative_x(x), relative_y(y), WHITE, params);
+    draw_texture_ex(
+        texture,
+        relative_x(x),
+        relative_y(y),
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(relative_zoom_vec2(params.dest_size.unwrap())),
+            ..params
+        },
+    );
 }
 
 /// Returns the mouse position relative to the screen
-pub fn rel_mouse_pos() -> Vec2 {
+pub fn screen_mouse_pos() -> Vec2 {
     relative_pos(mouse_position().into())
+}
+
+/// Returns the mouse pos as a [Vec2]
+pub fn mouse_pos() -> Vec2 {
+    mouse_position().into()
 }
 
 /// Macro for creating a [Color] from a hex code
 #[macro_export]
-macro_rules! hex_color {
-    ($hex:expr) => {
-        Color::from_hex($hex).unwrap()
+macro_rules! hex {
+    ($hex:expr) => {{
+        let r = u8::from_str_radix(&$hex[1..3], 16).unwrap();
+        let g = u8::from_str_radix(&$hex[3..5], 16).unwrap();
+        let b = u8::from_str_radix(&$hex[5..7], 16).unwrap();
+        macroquad::prelude::Color::from_rgba(r, g, b, 255)
+    }};
+}
+
+/// Ternary macro
+#[macro_export]
+macro_rules! ternary {
+    ($cond:expr, $if:expr, $else:expr) => {
+        if $cond {
+            $if
+        } else {
+            $else
+        }
     };
 }

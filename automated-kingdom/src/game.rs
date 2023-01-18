@@ -61,7 +61,7 @@ impl Game {
     }
 
     pub fn init(&mut self) {
-        self.map.update_camera_bounds();
+        self.map.set_camera_bounds();
     }
 
     pub fn update(&mut self) {
@@ -76,5 +76,13 @@ impl Game {
         self.map.draw();
         self.players[self.main_player].draw();
         self.map.draw_minimap();
+    }
+
+    pub fn main_player(&self) -> &Player {
+        &self.players[self.main_player]
+    }
+
+    pub fn main_player_mut(&mut self) -> &mut Player {
+        &mut self.players[self.main_player]
     }
 }

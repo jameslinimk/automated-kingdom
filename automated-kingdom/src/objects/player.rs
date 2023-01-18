@@ -6,7 +6,7 @@ use macroquad::window::{screen_height, screen_width};
 use crate::map::world_to_pos;
 use crate::objects::worker::Worker;
 use crate::screen_size;
-use crate::util::{draw_rel_rectangle, rel_mouse_pos};
+use crate::util::{draw_rel_rectangle, screen_mouse_pos};
 
 pub fn bottom_ui_height() -> f32 {
     screen_size!(100.0, 150.0, 175.0)
@@ -14,7 +14,7 @@ pub fn bottom_ui_height() -> f32 {
 
 #[derive(new)]
 pub struct Player {
-    #[new(value = "vec![Worker::new()]")]
+    #[new(value = "vec![Worker::new(Color::Blue)]")]
     pub workers: Vec<Worker>,
 
     #[new(value = "None")]
@@ -43,7 +43,7 @@ impl Player {
     pub fn update(&mut self) {
         if is_mouse_button_pressed(MouseButton::Left) {
             for (i, worker) in self.workers.iter().enumerate() {
-                if worker.rect.touches_point(&rel_mouse_pos()) {
+                if worker.rect.touches_point(&screen_mouse_pos()) {
                     if self.selected_worker.contains(&i) {
                         self.selected_worker = None;
                     } else {
@@ -56,7 +56,7 @@ impl Player {
 
         if is_mouse_button_pressed(MouseButton::Right) {
             if let Some(worker) = self.selected_worker() {
-                worker.set_path(world_to_pos(rel_mouse_pos()))
+                worker.set_path(world_to_pos(screen_mouse_pos()))
             }
         }
     }

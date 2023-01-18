@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use ak_server::types_game::{ServerWorker, Texture};
+use ak_server::types_game::{Color as ServerColor, ServerWorker};
 use derive_new::new;
 use macroquad::color_u8;
 use macroquad::prelude::{vec2, Color, UVec2, Vec2, WHITE};
@@ -46,6 +46,46 @@ pub enum WalkDirection {
     Right,
 }
 
+macro_rules! worker_sheets {
+    ($value:expr, $action:ident) => {{
+        use ak_server::types_game::Texture::*;
+
+        let textures = match $value {
+            ServerColor::Blue => &[
+                concat_idents!(BlueWorker, $action, Up),
+                concat_idents!(BlueWorker, $action, Down),
+                concat_idents!(BlueWorker, $action, Left),
+                concat_idents!(BlueWorker, $action, Right),
+            ],
+            ServerColor::Red => &[
+                concat_idents!(RedWorker, $action, Up),
+                concat_idents!(RedWorker, $action, Down),
+                concat_idents!(RedWorker, $action, Left),
+                concat_idents!(RedWorker, $action, Right),
+            ],
+            ServerColor::Green => &[
+                concat_idents!(GreenWorker, $action, Up),
+                concat_idents!(GreenWorker, $action, Down),
+                concat_idents!(GreenWorker, $action, Left),
+                concat_idents!(GreenWorker, $action, Right),
+            ],
+            ServerColor::Yellow => &[
+                concat_idents!(YellowWorker, $action, Up),
+                concat_idents!(YellowWorker, $action, Down),
+                concat_idents!(YellowWorker, $action, Left),
+                concat_idents!(YellowWorker, $action, Right),
+            ],
+        };
+
+        hashmap! {
+            WalkDirection::Up => SpriteSheet::new_12(textures[0]),
+            WalkDirection::Down => SpriteSheet::new_12(textures[1]),
+            WalkDirection::Left => SpriteSheet::new_12(textures[2]),
+            WalkDirection::Right => SpriteSheet::new_12(textures[3]),
+        }
+    }};
+}
+
 /// A worker that can be controlled by the player and can build structures
 #[derive(Debug, Clone, new)]
 pub struct Worker {
@@ -76,20 +116,12 @@ pub struct Worker {
     #[new(value = "0.0")]
     vspd: f32,
 
-    #[new(value = "hashmap! {
-        WalkDirection::Up => SpriteSheet::new_12(Texture::BlueWorkerWalkUp),
-        WalkDirection::Down => SpriteSheet::new_12(Texture::BlueWorkerWalkDown),
-        WalkDirection::Left => SpriteSheet::new_12(Texture::BlueWorkerWalkLeft),
-        WalkDirection::Right => SpriteSheet::new_12(Texture::BlueWorkerWalkRight),
-    }")]
+    pub color: ServerColor,
+
+    #[new(value = "worker_sheets!(color, Walk)")]
     walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 
-    #[new(value = "hashmap! {
-        WalkDirection::Up => SpriteSheet::new_12(Texture::BlueWorkerIdleUp),
-        WalkDirection::Down => SpriteSheet::new_12(Texture::BlueWorkerIdleDown),
-        WalkDirection::Left => SpriteSheet::new_12(Texture::BlueWorkerIdleLeft),
-        WalkDirection::Right => SpriteSheet::new_12(Texture::BlueWorkerIdleRight),
-    }")]
+    #[new(value = "worker_sheets!(color, Idle)")]
     idle_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 }
 

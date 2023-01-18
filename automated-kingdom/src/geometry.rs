@@ -4,6 +4,8 @@ use derive_new::new;
 use macroquad::prelude::{vec2, Color, Vec2};
 use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 
+use crate::util::{relative_pos, relative_zoom};
+
 /// Wrapper for a rectangle, used for collision detection and other things
 #[derive(Debug, Clone, Copy, PartialEq, new)]
 pub struct CollisionRect {
@@ -24,6 +26,25 @@ impl CollisionRect {
             center.y - height / 2.0,
             width,
             height,
+        )
+    }
+
+    /// Creates a new [CollisionRect] with the given center and size, relative to the screen
+    pub fn new_rel_center(center: Vec2, width: f32, height: f32) -> CollisionRect {
+        CollisionRect::new_rel(
+            center.x - width / 2.0,
+            center.y - height / 2.0,
+            relative_zoom(width),
+            relative_zoom(height),
+        )
+    }
+
+    /// Creates a new [CollisionRect] with the given top left corner and size, relative to the screen
+    pub fn new_rel(x: f32, y: f32, width: f32, height: f32) -> CollisionRect {
+        CollisionRect::new_vec2(
+            relative_pos(vec2(x, y)),
+            relative_zoom(width),
+            relative_zoom(height),
         )
     }
 

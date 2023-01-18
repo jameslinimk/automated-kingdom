@@ -1,13 +1,17 @@
 use ak_server::types_game::Texture;
 use derive_new::new;
-use macroquad::color_u8;
-use macroquad::prelude::{uvec2, vec2, UVec2, Vec2, RED, WHITE};
+use macroquad::prelude::{is_mouse_button_down, uvec2, vec2, MouseButton, UVec2, Vec2, RED, WHITE};
 use macroquad::texture::{draw_texture, DrawTextureParams};
+use macroquad::window::{screen_height, screen_width};
 
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
+use crate::geometry::CollisionRect;
+use crate::objects::player::bottom_ui_height;
+use crate::objects::worker::workers_iter;
 use crate::texture_map::TextureMap;
-use crate::util::{draw_rel_rectangle, draw_rel_texture_ex};
+use crate::util::{draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, screen_mouse_pos};
+use crate::{hex, ternary};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Tile {
@@ -46,21 +50,33 @@ impl Map {
     }
 
     pub fn draw_minimap(&self) {
-        let new_square_size = SQUARE_SIZE / 20.0;
+        let divisor = 20.0;
+        let new_square_size = SQUARE_SIZE / divisor;
         let margin = 8.0;
 
+        /* --------------------------------- Drawing -------------------------------- */
         // Border / background
         let width = self.width as f32 * new_square_size;
         let height = self.height as f32 * new_square_size;
-        draw_rel_rectangle(
-            0.0,
-            0.0,
-            width + margin * 2.0,
-            height + margin * 2.0,
-            color_u8!(150, 111, 51, 255),
-        );
 
-        // Minimap
+        let border_width = 2.0;
+
+        draw_rel_rectangle(
+            border_width,
+            border_width,
+            width + margin * 2.0 - border_width,
+            height + margin * 2.0 - border_width,
+            hex!("#DCB579"),
+        );
+        let border_rect = CollisionRect::new_rel(
+            border_width,
+            border_width,
+            width + margin * 2.0 - border_width,
+            height + margin * 2.0 - border_width,
+        );
+        border_rect.draw_lines(2.5, hex!("#A0793D"));
+
+        /* ----------------------------------- Map ---------------------------------- */
         for (y, row) in self.map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 match tile {
@@ -80,10 +96,42 @@ impl Map {
             }
         }
 
-        // Camera view indicator
+        /* ----------------------------- View indicator ----------------------------- */
+        let cam_center = game().camera.camera.target;
+        let cam_view = vec2(screen_width(), screen_height()) / game().camera.zoom;
+        let cam_rect = CollisionRect::new_rel(
+            margin + (cam_center.x - cam_view.x / 2.0) / divisor,
+            margin + (cam_center.y - cam_view.y / 2.0) / divisor,
+            cam_view.x / divisor,
+            (cam_view.y - bottom_ui_height()) / divisor,
+        );
+
+        cam_rect.draw_lines(2.0, RED);
+
+        /* --------------------------------- Workers -------------------------------- */
+        for worker in workers_iter() {
+            let p_color = game().main_player().color;
+            let color = ternary!(worker.color == p_color, hex!("#00FF00"), hex!("#FF0000"));
+
+            let center = worker.rect.center();
+            let rect = CollisionRect::new_rel_center(center / divisor + margin, 4.0, 4.0);
+
+            if worker.color != p_color && !cam_rect.touches_point(&rect.center()) {
+                continue;
+            }
+
+            rect.draw(color);
+        }
+
+        /* -------------------------------- Movement -------------------------------- */
+        if border_rect.touches_point(&screen_mouse_pos()) && is_mouse_button_down(MouseButton::Left)
+        {
+            let new_cam_pos = (mouse_pos() - margin) * divisor;
+            game().camera.camera.target = new_cam_pos;
+        }
     }
 
-    pub fn update_camera_bounds(&self) {
+    pub fn set_camera_bounds(&self) {
         game().camera.bounds = Some(vec2(
             self.width as f32 * SQUARE_SIZE,
             self.height as f32 * SQUARE_SIZE,
