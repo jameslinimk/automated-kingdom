@@ -3,7 +3,7 @@
 use macroquad::prelude::{mouse_position, vec2, Color, Vec2, WHITE};
 use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 use macroquad::text::{draw_text_ex, measure_text, TextParams};
-use macroquad::texture::{draw_texture_ex, DrawTextureParams, Texture2D};
+use macroquad::texture::{draw_texture, draw_texture_ex, DrawTextureParams, Texture2D};
 
 use crate::conf::SILVER_FONT;
 use crate::game::game;
@@ -222,6 +222,16 @@ pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextu
             dest_size: Some(relative_zoom_vec2(params.dest_size.unwrap())),
             ..params
         },
+    );
+}
+
+/// Draw a texture relative to the screen
+pub fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
+    draw_texture(
+        texture,
+        x - texture.width() / 2.0,
+        y - texture.height() / 2.0,
+        WHITE,
     );
 }
 

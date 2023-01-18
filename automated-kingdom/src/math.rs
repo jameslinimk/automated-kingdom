@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 
 use macroquad::prelude::{vec2, Vec2};
 
-/// Returns the radians between two points
+/// Returns the radians between two [Vec2]'s
 pub fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
     let x_dist = dest.x - origin.x;
     let y_dist = dest.y - origin.y;
@@ -12,7 +12,7 @@ pub fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
     (-y_dist).atan2(x_dist) % (2.0 * PI)
 }
 
-/// Gets the opposite radians between two points
+/// Gets the opposite radians between two [Vec2]'s
 pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
     let x_dist = origin.x - dest.x;
     let y_dist = origin.y - dest.y;
@@ -20,7 +20,7 @@ pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
     (-y_dist).atan2(x_dist) % (2.0 * PI)
 }
 
-/// Finds distance between 2 points
+/// Finds distance between 2 [Vec2]'s
 pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
     let x_dist = p2.x - p1.x;
     let y_dist = p2.y - p1.y;
@@ -28,7 +28,7 @@ pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
     (x_dist * x_dist + y_dist * y_dist).sqrt()
 }
 
-/// Projects point at certain radians and distance
+/// Projects [Vec2] at certain radians and distance
 pub fn project(origin: &Vec2, radians: f32, distance: f32) -> Vec2 {
     vec2(
         origin.x + (radians.cos() * distance),

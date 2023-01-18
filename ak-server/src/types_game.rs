@@ -13,6 +13,7 @@ pub enum Color {
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Texture {
     Wall,
+    GoldPatch,
 
     // [code-gen] workers
     BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,
@@ -58,7 +59,7 @@ pub struct ServerPlayer {
     pub color: Color,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub enum Tile {
     Wall,
     Air,

@@ -2,11 +2,12 @@
 
 use std::hash::BuildHasherDefault;
 
+use ak_server::types_game::Tile;
 use macroquad::prelude::{uvec2, UVec2, Vec2};
 use priority_queue::PriorityQueue;
 use rustc_hash::FxHasher;
 
-use crate::map::{pos_to_world, Map, Tile};
+use crate::map::Map;
 use crate::math::distance;
 use crate::{game, hashmap};
 
@@ -103,10 +104,10 @@ pub fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
     let mut path = vec![];
     if costs.contains_key(&goal) {
         while current != start {
-            path.push(pos_to_world(current));
+            path.push(Map::pos_to_world(current));
             current = parents[&current];
         }
-        path.push(pos_to_world(start));
+        path.push(Map::pos_to_world(start));
         path.reverse();
         return Some(path);
     }
@@ -118,10 +119,11 @@ pub fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
 pub fn path_time(current_pos: &Vec2, speed: f32, path: &[Vec2]) -> f32 {
     let mut time = 0.0;
     if !path.is_empty() {
-        time += distance(current_pos, &path[0]);
-        for i in 1..path.len() - 1 {
-            let dist = distance(&path[i], &path[i + 1]);
+        let mut prev = current_pos;
+        for cur in path.iter() {
+            let dist = distance(prev, cur);
             time += dist;
+            prev = cur;
         }
         time /= speed;
     }

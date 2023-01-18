@@ -50,6 +50,7 @@ impl Game {
 
         load_textures!(
             Texture::Wall => "wall.png",
+            Texture::GoldPatch => "ores/gold_patch.png",
 
             // [code-gen] workers
             Texture::BlueWorkerIcon => "workers/blue/icon.png", Texture::BlueWorkerIdleDown => "workers/blue/idle_down.png", Texture::BlueWorkerIdleUp => "workers/blue/idle_up.png", Texture::BlueWorkerIdleLeft => "workers/blue/idle_left.png", Texture::BlueWorkerIdleRight => "workers/blue/idle_right.png", Texture::BlueWorkerWalkDown => "workers/blue/walk_down.png", Texture::BlueWorkerWalkUp => "workers/blue/walk_up.png", Texture::BlueWorkerWalkLeft => "workers/blue/walk_left.png", Texture::BlueWorkerWalkRight => "workers/blue/walk_right.png",

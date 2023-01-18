@@ -1,4 +1,4 @@
-#![feature(option_result_contains, concat_idents)]
+#![feature(concat_idents)]
 
 use std::env;
 

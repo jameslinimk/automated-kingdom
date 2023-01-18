@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use ak_server::types_game::{Color as ServerColor, ServerWorker};
+use ak_server::types_game::{Color as ServerColor, ServerWorker, Tile};
 use derive_new::new;
 use macroquad::color_u8;
 use macroquad::prelude::{vec2, Color, UVec2, Vec2, WHITE};
@@ -12,8 +12,8 @@ use crate::astar::{astar, path_time};
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
-use crate::map::world_to_pos;
-use crate::math::{angle, distance, project};
+use crate::map::Map;
+use crate::math::{angle, distance, opposite_angle, project};
 use crate::spritesheet::SpriteSheet;
 use crate::util::{draw_text_center, FloatSignum};
 use crate::{derive_id_eq, hashmap};
@@ -46,34 +46,34 @@ pub enum WalkDirection {
     Right,
 }
 
-macro_rules! worker_sheets {
-    ($value:expr, $action:ident) => {{
+macro_rules! direction_sheets {
+    ($color:expr, $base_name:ident, $action:ident) => {{
         use ak_server::types_game::Texture::*;
 
-        let textures = match $value {
+        let textures = match $color {
             ServerColor::Blue => &[
-                concat_idents!(BlueWorker, $action, Up),
-                concat_idents!(BlueWorker, $action, Down),
-                concat_idents!(BlueWorker, $action, Left),
-                concat_idents!(BlueWorker, $action, Right),
+                concat_idents!(Blue, $base_name, $action, Up),
+                concat_idents!(Blue, $base_name, $action, Down),
+                concat_idents!(Blue, $base_name, $action, Left),
+                concat_idents!(Blue, $base_name, $action, Right),
             ],
             ServerColor::Red => &[
-                concat_idents!(RedWorker, $action, Up),
-                concat_idents!(RedWorker, $action, Down),
-                concat_idents!(RedWorker, $action, Left),
-                concat_idents!(RedWorker, $action, Right),
+                concat_idents!(Red, $base_name, $action, Up),
+                concat_idents!(Red, $base_name, $action, Down),
+                concat_idents!(Red, $base_name, $action, Left),
+                concat_idents!(Red, $base_name, $action, Right),
             ],
             ServerColor::Green => &[
-                concat_idents!(GreenWorker, $action, Up),
-                concat_idents!(GreenWorker, $action, Down),
-                concat_idents!(GreenWorker, $action, Left),
-                concat_idents!(GreenWorker, $action, Right),
+                concat_idents!(Green, $base_name, $action, Up),
+                concat_idents!(Green, $base_name, $action, Down),
+                concat_idents!(Green, $base_name, $action, Left),
+                concat_idents!(Green, $base_name, $action, Right),
             ],
             ServerColor::Yellow => &[
-                concat_idents!(YellowWorker, $action, Up),
-                concat_idents!(YellowWorker, $action, Down),
-                concat_idents!(YellowWorker, $action, Left),
-                concat_idents!(YellowWorker, $action, Right),
+                concat_idents!(Yellow, $base_name, $action, Up),
+                concat_idents!(Yellow, $base_name, $action, Down),
+                concat_idents!(Yellow, $base_name, $action, Left),
+                concat_idents!(Yellow, $base_name, $action, Right),
             ],
         };
 
@@ -116,12 +116,15 @@ pub struct Worker {
     #[new(value = "0.0")]
     vspd: f32,
 
+    #[new(value = "None")]
+    pub moving_away_from: Option<u16>,
+
     pub color: ServerColor,
 
-    #[new(value = "worker_sheets!(color, Walk)")]
+    #[new(value = "direction_sheets!(color, Worker, Walk)")]
     walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 
-    #[new(value = "worker_sheets!(color, Idle)")]
+    #[new(value = "direction_sheets!(color, Worker, Idle)")]
     idle_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
 }
 
@@ -220,6 +223,67 @@ impl Worker {
         }
     }
 
+    /// Make sure the worker doesn't collide with other workers or walls, if it does, slowly move it out of the way. Changes `hspd` and `vspd`
+    pub fn update_collision(&mut self) {
+        for worker in
+            workers_iter().filter(|w| w.id != self.id && w.moving_away_from != Some(self.id))
+        {
+            let mut rect = self.rect;
+            rect.set_top_left(rect.top_left() + vec2(self.hspd, self.vspd));
+
+            if rect.touches_rect(&worker.rect) {
+                self.moving_away_from = Some(worker.id);
+
+                let angle = opposite_angle(&rect.top_left(), &worker.rect.top_left());
+                let speed = 50.0 * get_frame_time();
+                let new_pos = project(&rect.top_left(), angle, speed);
+
+                self.hspd += new_pos.x - rect.top_left().x;
+                self.vspd += new_pos.y - rect.top_left().y;
+
+                let mut h_rect = self.rect;
+                h_rect.set_top_left(h_rect.top_left() + vec2(self.hspd, 0.0));
+                let mut v_rect = self.rect;
+                v_rect.set_top_left(v_rect.top_left() + vec2(0.0, self.vspd));
+
+                for (y, row) in game().map.map.iter().enumerate() {
+                    for (x, wall) in row.iter().enumerate() {
+                        if wall != &Tile::Wall {
+                            continue;
+                        }
+
+                        let wall_rect = CollisionRect::new(
+                            x as f32 * SQUARE_SIZE,
+                            y as f32 * SQUARE_SIZE,
+                            SQUARE_SIZE,
+                            SQUARE_SIZE,
+                        );
+
+                        // `hspd`
+                        if h_rect.touches_rect(&wall_rect) {
+                            if wall_rect.center().x > h_rect.center().x {
+                                self.hspd = wall_rect.left() - h_rect.right();
+                            } else {
+                                self.hspd = wall_rect.right() - h_rect.left();
+                            }
+                        }
+
+                        // `vspd`
+                        if v_rect.touches_rect(&wall_rect) {
+                            if wall_rect.center().y > v_rect.center().y {
+                                self.vspd = wall_rect.top() - v_rect.bottom();
+                            } else {
+                                self.vspd = wall_rect.bottom() - v_rect.top();
+                            }
+                        }
+                    }
+                }
+
+                return;
+            }
+        }
+    }
+
     pub fn update(&mut self) {
         // Reset velocities
         self.hspd = 0.0;
@@ -228,6 +292,7 @@ impl Worker {
         // Movement
         self.update_path();
         self.update_direction();
+        self.update_collision();
 
         // Updating spritesheet
         self.sprite_mut().update();
@@ -239,16 +304,17 @@ impl Worker {
 
     /// Sets the path to the given goal position on the [crate::map::Map]
     pub fn set_path(&mut self, goal: UVec2) {
-        self.path = astar(world_to_pos(self.rect.top_left()), goal);
+        self.path = astar(Map::world_to_pos(self.rect.top_left()), goal);
     }
 
+    /// Draw the worker to the screen, and optionally highlight it. Also draws the path-line and time
     pub fn draw(&self, highlight: bool) {
         self.sprite().draw(self.rect.left(), self.rect.top());
         if highlight {
             self.rect.draw_lines(2.5, color_u8!(255, 255, 255, 200));
         }
 
-        // Drawing time
+        // Drawing path and time
         if let Some(path) = &self.path {
             if let Some(end_pos) = path.last() {
                 let end_pos = *end_pos + vec2(SQUARE_SIZE / 2.0, SQUARE_SIZE / 2.0);

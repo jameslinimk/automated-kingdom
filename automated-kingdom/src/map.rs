@@ -1,4 +1,4 @@
-use ak_server::types_game::Texture;
+use ak_server::types_game::{Texture, Tile};
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_down, uvec2, vec2, MouseButton, UVec2, Vec2, RED, WHITE};
 use macroquad::texture::{draw_texture, DrawTextureParams};
@@ -13,13 +13,7 @@ use crate::texture_map::TextureMap;
 use crate::util::{draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, screen_mouse_pos};
 use crate::{hex, ternary};
 
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
-pub enum Tile {
-    Wall,
-    Air,
-}
-
-#[derive(Clone, PartialEq, Debug, new)]
+#[derive(PartialEq, Eq, Clone, Debug, new)]
 pub struct Map {
     #[new(value = "string_to_map(TEST_MAP).0")]
     pub map: Vec<Vec<Tile>>,
@@ -38,7 +32,7 @@ impl Map {
     pub fn draw(&self) {
         for (y, row) in self.map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
-                let world_pos = pos_to_world(uvec2(x as u32, y as u32));
+                let world_pos = Map::pos_to_world(uvec2(x as u32, y as u32));
                 match tile {
                     Tile::Wall => {
                         draw_texture(Texture::Wall.texture(), world_pos.x, world_pos.y, WHITE);
@@ -137,16 +131,16 @@ impl Map {
             self.height as f32 * SQUARE_SIZE,
         ));
     }
-}
 
-/// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
-pub fn pos_to_world(pos: UVec2) -> Vec2 {
-    vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
-}
+    /// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
+    pub fn pos_to_world(pos: UVec2) -> Vec2 {
+        vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
+    }
 
-/// Inverse of [pos_to_world], converts a world position to a location on a [Map]
-pub fn world_to_pos(pos: Vec2) -> UVec2 {
-    uvec2((pos.x / SQUARE_SIZE) as u32, (pos.y / SQUARE_SIZE) as u32)
+    /// Inverse of [pos_to_world], converts a world position to a location on a [Map]
+    pub fn world_to_pos(pos: Vec2) -> UVec2 {
+        uvec2((pos.x / SQUARE_SIZE) as u32, (pos.y / SQUARE_SIZE) as u32)
+    }
 }
 
 fn string_to_map(string: &'static str) -> (Vec<Vec<Tile>>, usize, usize) {
