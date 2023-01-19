@@ -1,7 +1,12 @@
 #![feature(concat_idents)]
 
+use std::thread;
+use std::time::Duration;
+
+use macroquad::time::{get_fps, get_frame_time};
 use macroquad::window::{next_frame, Conf};
 
+use crate::config::config;
 use crate::game::{game, Game};
 
 pub mod astar;
@@ -19,22 +24,23 @@ pub mod util;
 
 /// Base config for the game
 fn base_cfg() -> Conf {
+    let conf = config();
     Conf {
         window_title: "Automated Kingdom".to_owned(),
         window_resizable: true,
-        window_width: 1280,
-        window_height: 1280,
+        window_width: conf.window_width,
+        window_height: conf.window_height,
         ..Default::default()
     }
 }
 
 #[cfg(not(windows))]
-fn config() -> Conf {
+fn cfg() -> Conf {
     base_cfg()
 }
 
 #[cfg(windows)]
-fn config() -> Conf {
+fn cfg() -> Conf {
     use std::io::Cursor;
 
     use image::io::Reader;
@@ -64,15 +70,22 @@ fn config() -> Conf {
     }
 }
 
-#[macroquad::main(config)]
+#[macroquad::main(cfg)]
 async fn main() {
     // std::env::set_var("RUST_BACKTRACE", "1");
 
     Game::preload();
     game().init();
     loop {
+        println!("{:?}", get_fps());
         game().update();
         game().draw();
         next_frame().await;
+
+        // limit fps
+        let frame_time = get_frame_time();
+        if frame_time < 1.0 / 60.0 {
+            thread::sleep(Duration::from_secs_f32(1.0 / 60.0 - frame_time));
+        }
     }
 }

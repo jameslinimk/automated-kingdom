@@ -7,8 +7,8 @@ use crate::objects::camera::Camera;
 use crate::objects::player::Player;
 use crate::objects::worker::workers_iter_mut;
 use crate::texture_map::load_texture;
-static mut GAME: Option<Game> = None;
 
+static mut GAME: Option<Game> = None;
 /// Returns the global [Game] object as a mutable reference
 pub fn game() -> &'static mut Game {
     unsafe {
