@@ -51,6 +51,15 @@
 				"$rustc"
 			],
 			"group": "build"
-		}
+		},
+		{
+			"label": "Build launcher",
+			"type": "shell",
+			"command": ".\\launcher\\build.bat",
+			"windows": {
+				"command": ".\\launcher\\build.bat",
+			},
+			"group": "build"
+		},
 	]
 }
