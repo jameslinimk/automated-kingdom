@@ -1,22 +1,33 @@
 use ak_server::types_game::{Texture, Tile};
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_down, uvec2, vec2, MouseButton, UVec2, Vec2, RED, WHITE};
+use macroquad::shapes::draw_circle;
 use macroquad::texture::{draw_texture, DrawTextureParams};
 use macroquad::window::{screen_height, screen_width};
+use rustc_hash::FxHashSet;
 
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
+use crate::objects::ore_patch::{Ore, OrePatch};
 use crate::objects::player::bottom_ui_height;
 use crate::objects::worker::workers_iter;
 use crate::texture_map::TextureMap;
 use crate::util::{draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, screen_mouse_pos};
-use crate::{hex, ternary};
+use crate::{hashset, hex, ternary};
 
-#[derive(PartialEq, Eq, Clone, Debug, new)]
+#[derive(PartialEq, Clone, Debug, new)]
 pub struct Map {
     #[new(value = "string_to_map(TEST_MAP).0")]
-    pub map: Vec<Vec<Tile>>,
+    pub base_map: Vec<Vec<Tile>>,
+
+    #[new(value = "hashset![]")]
+    pub tiles: FxHashSet<UVec2>,
+
+    #[new(value = "vec![
+        OrePatch::new(uvec2(5, 5), 4, 4, Ore::Gold, 1000)
+    ]")]
+    pub ores: Vec<OrePatch>,
 
     #[new(value = "string_to_map(TEST_MAP).1")]
     pub width: usize,
@@ -26,11 +37,11 @@ pub struct Map {
 }
 impl Map {
     pub fn get(&self, pos: UVec2) -> Tile {
-        self.map[pos.y as usize][pos.x as usize]
+        self.base_map[pos.y as usize][pos.x as usize]
     }
 
     pub fn draw(&self) {
-        for (y, row) in self.map.iter().enumerate() {
+        for (y, row) in self.base_map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 let world_pos = Map::pos_to_world(uvec2(x as u32, y as u32));
                 match tile {
@@ -41,10 +52,14 @@ impl Map {
                 }
             }
         }
+
+        for ore in self.ores.iter() {
+            ore.draw();
+        }
     }
 
     pub fn draw_minimap(&self) {
-        let divisor = 20.0;
+        let divisor = 10.0;
         let new_square_size = SQUARE_SIZE / divisor;
         let margin = 8.0;
 
@@ -71,7 +86,7 @@ impl Map {
         border_rect.draw_lines(2.5, hex!("#A0793D"));
 
         /* ----------------------------------- Map ---------------------------------- */
-        for (y, row) in self.map.iter().enumerate() {
+        for (y, row) in self.base_map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 match tile {
                     Tile::Wall => {
@@ -102,13 +117,20 @@ impl Map {
 
         cam_rect.draw_lines(2.0, RED);
 
-        /* --------------------------------- Workers -------------------------------- */
+        let person_dot_size = 10.0;
+        let ore_dot_size = 14.0;
+
+        // Workers
         for worker in workers_iter() {
             let p_color = game().main_player().color;
             let color = ternary!(worker.color == p_color, hex!("#00FF00"), hex!("#FF0000"));
 
             let center = worker.rect.center();
-            let rect = CollisionRect::new_rel_center(center / divisor + margin, 4.0, 4.0);
+            let rect = CollisionRect::new_rel_center(
+                center / divisor + margin,
+                person_dot_size,
+                person_dot_size,
+            );
 
             if worker.color != p_color && !cam_rect.touches_point(&rect.center()) {
                 continue;
@@ -117,19 +139,58 @@ impl Map {
             rect.draw(color);
         }
 
+        // Ores
+        for ore in self.ores.iter() {
+            let ore_rect = Map::pos_to_rect(ore.pos, ore.width, ore.height);
+            let rect = CollisionRect::new_rel_center(
+                ore_rect.center() / divisor + margin,
+                ore_dot_size,
+                ore_dot_size,
+            );
+
+            if !cam_rect.touches_rect(&rect) {
+                continue;
+            }
+
+            rect.draw(ore.ore.color());
+        }
+
         /* -------------------------------- Movement -------------------------------- */
         if border_rect.touches_point(&screen_mouse_pos()) && is_mouse_button_down(MouseButton::Left)
         {
-            let new_cam_pos = (mouse_pos() - margin) * divisor;
+            let new_cam_pos = (mouse_pos() - vec2(margin, margin / 2.0)) * divisor;
+            draw_circle(cam_rect.center().x, cam_rect.center().y, 2.0, RED);
             game().camera.camera.target = new_cam_pos;
         }
     }
 
+    /// Updates the [Map]'s tiles based on the current [OrePatch]'s and others
+    pub fn update(&mut self) {
+        for ore in self.ores.iter() {
+            for x in ore.pos.x..ore.pos.x + ore.width {
+                for y in ore.pos.y..ore.pos.y + ore.height {
+                    self.tiles.insert(uvec2(x, y));
+                }
+            }
+        }
+    }
+
+    /// Updates the camera bounds based on the current base map size
     pub fn set_camera_bounds(&self) {
         game().camera.bounds = Some(vec2(
             self.width as f32 * SQUARE_SIZE,
             self.height as f32 * SQUARE_SIZE,
         ));
+    }
+
+    /// Converts a location on a [Map] to a [CollisionRect] with the given width and height
+    pub fn pos_to_rect(pos: UVec2, width: u32, height: u32) -> CollisionRect {
+        let world_pos = Map::pos_to_world(pos);
+        CollisionRect::new_vec2(
+            world_pos,
+            width as f32 * SQUARE_SIZE,
+            height as f32 * SQUARE_SIZE,
+        )
     }
 
     /// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position

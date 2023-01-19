@@ -20,7 +20,10 @@ fn manhattan_distance(from: UVec2, to: UVec2) -> u32 {
 
 /// Checks if a point is valid to move to
 fn valid(point: UVec2, map: &Map) -> bool {
-    point.x < map.width as u32 && point.y < map.height as u32 && map.get(point) == Tile::Air
+    point.x < map.width as u32
+        && point.y < map.height as u32
+        && map.get(point) == Tile::Air
+        && !map.tiles.contains(&point)
 }
 
 /// Returns a list of valid moves from a point

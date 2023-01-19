@@ -18,6 +18,7 @@
 	},
 	"cSpell.words": [
 		"astar",
+		"canonicalize",
 		"chrono",
 		"consts",
 		"hasher",
@@ -27,6 +28,8 @@
 		"keybinds",
 		"Linimik",
 		"maplit",
+		"miniquad",
+		"nodebuffer",
 		"pathfinding",
 		"pathing",
 		"powf",
@@ -37,6 +40,7 @@
 		"signum",
 		"spritesheet",
 		"spritesheets",
+		"tzip",
 		"uvec"
 	]
 }

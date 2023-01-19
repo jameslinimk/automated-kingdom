@@ -246,7 +246,7 @@ impl Worker {
                 let mut v_rect = self.rect;
                 v_rect.set_top_left(v_rect.top_left() + vec2(0.0, self.vspd));
 
-                for (y, row) in game().map.map.iter().enumerate() {
+                for (y, row) in game().map.base_map.iter().enumerate() {
                     for (x, wall) in row.iter().enumerate() {
                         if wall != &Tile::Wall {
                             continue;

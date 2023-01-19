@@ -66,6 +66,7 @@ impl Game {
     }
 
     pub fn update(&mut self) {
+        self.map.update();
         self.players[self.main_player].update();
         self.camera.update();
         for worker in workers_iter_mut() {

@@ -14,3 +14,4 @@ rustc-hash = "1.1.0"
 serde = { version = "1.0.150", features = ["derive"] }
 rmp-serde = "1.1.1"
 ak-server = { path = "../ak-server" }
+image = "0.24.5"

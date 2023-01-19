@@ -1,5 +1,6 @@
 [workspace]
 members = [
 	"automated-kingdom",
-	"ak-server"	
+	"ak-server",
+	"launcher",
 ]
