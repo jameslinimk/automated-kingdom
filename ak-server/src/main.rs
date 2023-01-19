@@ -1,30 +1,45 @@
+#[cfg(feature = "server")]
 use std::hash::{Hash, Hasher};
+#[cfg(feature = "server")]
 use std::net::SocketAddr;
+#[cfg(feature = "server")]
 use std::sync::Mutex;
 
+#[cfg(feature = "server")]
 use ak_server::game::{in_game, CONN_GAMES};
+#[cfg(feature = "server")]
 use ak_server::types_client::ClientRequest;
+#[cfg(feature = "server")]
 use ak_server::{hashmap, hashset};
+#[cfg(feature = "server")]
 use chrono::Utc;
+#[cfg(feature = "server")]
 use colored::Colorize;
+#[cfg(feature = "server")]
 use lazy_static::lazy_static;
+#[cfg(feature = "server")]
 use rustc_hash::{FxHashMap, FxHashSet, FxHasher};
+#[cfg(feature = "server")]
 use tokio::net::UdpSocket;
 
-use crate::handle_request::handle_request;
+#[cfg(feature = "server")]
+use crate::handle_request::handle_request::handle_request;
 
 mod handle_request;
 
+#[cfg(feature = "server")]
 lazy_static! {
     static ref CONN_COUNT: Mutex<FxHashSet<u64>> = Mutex::from(hashset! {});
     static ref CONN_USERNAMES: Mutex<FxHashMap<u64, String>> = Mutex::from(hashmap! {});
 }
 
+#[cfg(feature = "server")]
 fn add_username(uuid: u64, username: &str) {
     let mut usernames = CONN_USERNAMES.lock().unwrap();
     usernames.insert(uuid, username.to_string());
 }
 
+#[cfg(feature = "server")]
 fn hash_addr(addr: SocketAddr) -> u64 {
     let host = addr.ip();
     let port = addr.port();
@@ -35,6 +50,7 @@ fn hash_addr(addr: SocketAddr) -> u64 {
     hasher.finish()
 }
 
+#[cfg(feature = "server")]
 #[allow(dead_code)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -102,4 +118,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             close_return!("Failed to write to socket; {:?}", err);
         }
     }
+}
+
+#[cfg(not(feature = "server"))]
+fn main() {
+    println!("Server feature not enabled");
 }

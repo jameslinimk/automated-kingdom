@@ -22,11 +22,7 @@ fn main() -> ZipResult<()> {
     archive.extract("automated_kingdom")?;
 
     // Run the game
-    let path = canonicalize("automated_kingdom/automated-kingdom.exe")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string();
+    let path = canonicalize("automated_kingdom/automated-kingdom.exe").unwrap();
 
     println!("{}", "Opening the game...".green());
     Command::new(path)

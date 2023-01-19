@@ -2,11 +2,12 @@
 
 cd /D "%~dp0"
 
-cd ../automated_kingdom
+cd ..\automated-kingdom\
 cargo build -r
 
-cd ../launcher
+cd ..\launcher\
 node zip.js
+timeout 1
 cargo build -r
 
 echo Finished building

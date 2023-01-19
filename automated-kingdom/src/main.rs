@@ -6,6 +6,7 @@ use crate::game::{game, Game};
 
 pub mod astar;
 pub mod conf;
+pub mod config;
 pub mod game;
 pub mod geometry;
 pub mod map;

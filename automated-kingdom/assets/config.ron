@@ -1,0 +1,5 @@
+Config (
+	window_height: 1280,
+	window_width: 1280,
+	fps_limt: 60,
+)

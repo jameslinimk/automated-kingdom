@@ -25,7 +25,7 @@ pub struct Map {
     pub tiles: FxHashSet<UVec2>,
 
     #[new(value = "vec![
-        OrePatch::new(uvec2(5, 5), 4, 4, Ore::Gold, 1000)
+        OrePatch::new(uvec2(5, 5), Ore::Gold, 1000)
     ]")]
     pub ores: Vec<OrePatch>,
 

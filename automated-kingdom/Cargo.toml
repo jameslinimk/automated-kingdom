@@ -14,4 +14,10 @@ rustc-hash = "1.1.0"
 serde = { version = "1.0.150", features = ["derive"] }
 rmp-serde = "1.1.1"
 ak-server = { path = "../ak-server" }
+ron = "0.8.0"
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
 image = "0.24.5"
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+web-sys = { version = "0.3.60", features = ["Window", "Storage"] }
