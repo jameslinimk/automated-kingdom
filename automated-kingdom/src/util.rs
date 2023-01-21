@@ -295,10 +295,9 @@ macro_rules! ternary {
 /// ```
 pub fn abbreviate_number(num: u32) -> String {
     let num_string = num.to_string();
-    let length = num_string.len();
     let mut output = String::new();
 
-    let (suffix, divider) = match length {
+    let (suffix, divider) = match num_string.len() {
         n if n > 9 => ('b', 1000000000.0),
         n if n > 6 => ('m', 1000000.0),
         n if n > 3 => ('k', 1000.0),
