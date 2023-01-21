@@ -14,8 +14,8 @@ devDependencies:
 
 packages:
 
-  /@babel/runtime/7.20.7:
-    resolution: {integrity: sha512-UF0tvkUtxwAgZ5W/KrkHf0Rn0fdnLDU9ScxBrEVNUprE/MzirjK4MJUX1/BVDv00Sv8cljtukVK1aky++X1SjQ==}
+  /@babel/runtime/7.20.13:
+    resolution: {integrity: sha512-gt3PKXs0DBoL9xCvOIIZ2NEqAGZqHjAnmVbfQtB620V0uReIQutpel14KcneZuer7UioY8ALKZ7iocavvzTNFA==}
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
@@ -26,7 +26,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
       bmp-js: 0.1.0
@@ -35,7 +35,7 @@ packages:
   /@jimp/core/0.16.2:
     resolution: {integrity: sha512-dp7HcyUMzjXphXYodI6PaXue+I9PXAavbb+AN+1XqFbotN22Z12DosNPEyy+UhLY/hZiQQqUkEaJHkvV31rs+w==}
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/utils': 0.16.2
       any-base: 1.1.0
       buffer: 5.7.1
@@ -51,7 +51,7 @@ packages:
   /@jimp/custom/0.16.2:
     resolution: {integrity: sha512-GtNwOs4hcVS2GIbqRUf42rUuX07oLB92cj7cqxZb0ZGWwcwhnmSW0TFLAkNafXmqn9ug4VTpNvcJSUdiuECVKg==}
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/core': 0.16.2
     dev: false
 
@@ -60,7 +60,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
       gifwrap: 0.9.4
@@ -72,7 +72,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
       jpeg-js: 0.4.4
@@ -83,7 +83,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -93,7 +93,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -103,7 +103,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -113,7 +113,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
       tinycolor2: 1.5.2
@@ -127,7 +127,7 @@ packages:
       '@jimp/plugin-resize': '>=0.3.5'
       '@jimp/plugin-scale': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-blit': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-resize': 0.16.2_@jimp+custom@0.16.2
@@ -143,7 +143,7 @@ packages:
       '@jimp/plugin-resize': '>=0.3.5'
       '@jimp/plugin-scale': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-crop': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-resize': 0.16.2_@jimp+custom@0.16.2
@@ -156,7 +156,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -166,7 +166,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -176,7 +176,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -186,7 +186,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -197,7 +197,7 @@ packages:
       '@jimp/custom': '>=0.3.5'
       '@jimp/plugin-rotate': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-rotate': 0.16.2_rqxyxjeek4vqmsj2o2ueqoj3ai
       '@jimp/utils': 0.16.2
@@ -208,7 +208,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -218,7 +218,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -228,7 +228,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -238,7 +238,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -249,7 +249,7 @@ packages:
       '@jimp/custom': '>=0.3.5'
       '@jimp/plugin-blit': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-blit': 0.16.2_@jimp+custom@0.16.2
       '@jimp/utils': 0.16.2
@@ -261,7 +261,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
     dev: false
@@ -274,7 +274,7 @@ packages:
       '@jimp/plugin-crop': '>=0.3.5'
       '@jimp/plugin-resize': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-blit': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-crop': 0.16.2_@jimp+custom@0.16.2
@@ -288,7 +288,7 @@ packages:
       '@jimp/custom': '>=0.3.5'
       '@jimp/plugin-resize': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-resize': 0.16.2_@jimp+custom@0.16.2
       '@jimp/utils': 0.16.2
@@ -301,7 +301,7 @@ packages:
       '@jimp/plugin-blur': '>=0.3.5'
       '@jimp/plugin-resize': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-blur': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-resize': 0.16.2_@jimp+custom@0.16.2
@@ -315,7 +315,7 @@ packages:
       '@jimp/plugin-color': '>=0.8.0'
       '@jimp/plugin-resize': '>=0.8.0'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-color': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-resize': 0.16.2_@jimp+custom@0.16.2
@@ -327,7 +327,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugin-blit': 0.16.2_@jimp+custom@0.16.2
       '@jimp/plugin-blur': 0.16.2_@jimp+custom@0.16.2
@@ -358,7 +358,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/utils': 0.16.2
       pngjs: 3.4.0
@@ -369,7 +369,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       utif: 2.0.1
     dev: false
@@ -379,7 +379,7 @@ packages:
     peerDependencies:
       '@jimp/custom': '>=0.3.5'
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/bmp': 0.16.2_@jimp+custom@0.16.2
       '@jimp/custom': 0.16.2
       '@jimp/gif': 0.16.2_@jimp+custom@0.16.2
@@ -392,7 +392,7 @@ packages:
   /@jimp/utils/0.16.2:
     resolution: {integrity: sha512-XENrPvmigiXZQ8E2nxJqO6UVvWBLzbNwyYi3Y8Q1IECoYhYI3kgOQ0fmy4G269Vz1V0omh1bNmC42r4OfXg1Jg==}
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       regenerator-runtime: 0.13.11
     dev: false
 
@@ -472,7 +472,7 @@ packages:
   /jimp/0.16.2:
     resolution: {integrity: sha512-UpItBk81a92f8oEyoGYbO3YK4QcM0hoIyuGHmShoF9Ov63P5Qo7Q/X2xsAgnODmSuDJFOtrPtJd5GSWW4LKdOQ==}
     dependencies:
-      '@babel/runtime': 7.20.7
+      '@babel/runtime': 7.20.13
       '@jimp/custom': 0.16.2
       '@jimp/plugins': 0.16.2_@jimp+custom@0.16.2
       '@jimp/types': 0.16.2_@jimp+custom@0.16.2

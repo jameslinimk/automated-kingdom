@@ -1,19 +1,24 @@
 use ak_server::types_game::{Color, ServerPlayer};
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED};
+use macroquad::texture::DrawTextureParams;
 use macroquad::window::{screen_height, screen_width};
+use rustc_hash::FxHashMap;
+use strum::IntoEnumIterator;
 
 use crate::game::game;
 use crate::map::Map;
+use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
 use crate::screen_size;
-use crate::util::{draw_rel_rectangle, screen_mouse_pos};
+use crate::texture_map::TextureMap;
+use crate::util::{abbreviate_number, draw_rel_rectangle, draw_rel_texture_ex, screen_mouse_pos};
 
 pub fn bottom_ui_height() -> f32 {
     screen_size!(100.0, 150.0, 175.0)
 }
 
-#[derive(new)]
+#[derive(Clone, new)]
 pub struct Player {
     #[new(
         value = "vec![Worker::new(Color::Blue), Worker::new(Color::Blue), Worker::new(Color::Blue), Worker::new(Color::Blue)]"
@@ -28,6 +33,15 @@ pub struct Player {
 
     #[new(value = "0")]
     pub uuid: u64,
+
+    #[new(value = "{
+        let mut temp = FxHashMap::default();
+        for ore in Ore::iter() {
+            temp.insert(ore, 0);
+        }
+        temp
+    }")]
+    pub ores: FxHashMap<Ore, u32>,
 }
 impl Player {
     pub fn as_server(&self) -> ServerPlayer {
@@ -87,6 +101,7 @@ impl Player {
         /* ------------------------------- Bottom part ------------------------------ */
         let general_info_width = screen_size!(128.0, 192.0, 256.0);
 
+        // Info
         draw_rel_rectangle(
             0.0,
             screen_height() - bottom_ui_height(),
@@ -94,6 +109,23 @@ impl Player {
             bottom_ui_height(),
             RED,
         );
+
+        for (i, (ore, amt)) in self.ores.iter().enumerate() {
+            let margin = 4.0;
+            let icon = ore.icon().texture();
+
+            draw_rel_texture_ex(
+                icon,
+                margin,
+                screen_height()
+                    - (bottom_ui_height() - 32.0 * (i as f32) - margin * ((i + 1) as f32)),
+                DrawTextureParams {
+                    ..Default::default()
+                },
+            );
+
+            let amt = abbreviate_number(*amt);
+        }
 
         // Selected worker image
         let selected_worker_width = bottom_ui_height();
@@ -113,10 +145,6 @@ impl Player {
             bottom_ui_height(),
             GREEN,
         );
-
-        // if let Some(worker) = self.get_selected_worker() {
-        //     draw_rectangle(rx(0.0), ry(0.0), 10.0, 10.0, RED);
-        // }
     }
 
     pub fn draw(&mut self) {

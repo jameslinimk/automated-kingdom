@@ -14,6 +14,8 @@ pub enum Color {
 pub enum Texture {
     Wall,
     GoldPatch,
+    GoldIcon,
+    MiningIcon,
 
     // [code-gen] workers
     BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,

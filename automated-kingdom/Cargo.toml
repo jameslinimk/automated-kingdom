@@ -15,6 +15,8 @@ serde = { version = "1.0.150", features = ["derive"] }
 rmp-serde = "1.1.1"
 ak-server = { path = "../ak-server" }
 ron = "0.8.0"
+strum = "0.24.1"
+strum_macros = "0.24.3"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 image = "0.24.5"

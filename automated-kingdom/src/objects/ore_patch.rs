@@ -4,6 +4,7 @@ use macroquad::prelude::{Color, UVec2, GOLD, RED, WHITE};
 use macroquad::shapes::draw_rectangle;
 use macroquad::time::get_time;
 use rustc_hash::FxHashMap;
+use strum_macros::EnumIter;
 
 use crate::geometry::CollisionRect;
 use crate::hashmap;
@@ -12,7 +13,7 @@ use crate::objects::worker::IdType;
 use crate::texture_map::TextureMap;
 use crate::util::draw_texture_center;
 
-#[derive(Hash, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Hash, Debug, PartialEq, Eq, Clone, Copy, EnumIter)]
 pub enum Ore {
     Gold,
 }
@@ -28,6 +29,13 @@ impl Ore {
     pub fn texture(&self) -> Texture {
         match self {
             Ore::Gold => Texture::GoldPatch,
+        }
+    }
+
+    /// Icon of the ore
+    pub fn icon(&self) -> Texture {
+        match self {
+            Ore::Gold => Texture::GoldIcon,
         }
     }
 
@@ -93,19 +101,27 @@ impl OrePatch {
         draw_rectangle(rect.left(), rect.top() - 10.0, w * radio, 10.0, RED);
     }
 
-    pub fn mine(&mut self, id: IdType) -> (u32, Ore) {
+    pub fn mine(&mut self, id: IdType) -> u32 {
         if let Some(last_mined) = self.mine_cooldowns.get(&id) {
             if get_time() - last_mined < self.ore.cooldown() {
-                return (0, self.ore);
+                return 0;
             }
         }
 
         if self.remaining > 0 {
             self.remaining -= 1;
             self.mine_cooldowns.insert(id, get_time());
-            (1, self.ore)
+            1
         } else {
-            (0, self.ore)
+            0
         }
+    }
+
+    pub fn time_left(&self, id: IdType) -> f32 {
+        (if let Some(last_mined) = self.mine_cooldowns.get(&id) {
+            self.ore.cooldown() - (get_time() - last_mined)
+        } else {
+            0.0
+        }) as f32
     }
 }

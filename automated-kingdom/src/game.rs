@@ -1,4 +1,4 @@
-use ak_server::types_game::Texture;
+use ak_server::types_game::{Color, Texture};
 use derive_new::new;
 
 use crate::conf::SILVER_FONT;
@@ -51,6 +51,8 @@ impl Game {
         load_textures!(
             Texture::Wall => "wall.png",
             Texture::GoldPatch => "ores/gold_patch.png",
+            Texture::GoldIcon => "ores/gold_icon.png",
+            Texture::MiningIcon => "mining_icon.png",
 
             // [code-gen] workers
             Texture::BlueWorkerIcon => "workers/blue/icon.png", Texture::BlueWorkerIdleDown => "workers/blue/idle_down.png", Texture::BlueWorkerIdleUp => "workers/blue/idle_up.png", Texture::BlueWorkerIdleLeft => "workers/blue/idle_left.png", Texture::BlueWorkerIdleRight => "workers/blue/idle_right.png", Texture::BlueWorkerWalkDown => "workers/blue/walk_down.png", Texture::BlueWorkerWalkUp => "workers/blue/walk_up.png", Texture::BlueWorkerWalkLeft => "workers/blue/walk_left.png", Texture::BlueWorkerWalkRight => "workers/blue/walk_right.png",
@@ -78,6 +80,24 @@ impl Game {
         self.map.draw();
         self.players[self.main_player].draw();
         self.map.draw_minimap();
+    }
+
+    pub fn player(&self, color: Color) -> &Player {
+        for player in &self.players {
+            if player.color == color {
+                return player;
+            }
+        }
+        panic!("Player not found");
+    }
+
+    pub fn player_mut(&mut self, color: Color) -> &mut Player {
+        for player in &mut self.players {
+            if player.color == color {
+                return player;
+            }
+        }
+        panic!("Player not found");
     }
 
     pub fn main_player(&self) -> &Player {

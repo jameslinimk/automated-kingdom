@@ -219,7 +219,7 @@ pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextu
         relative_y(y),
         WHITE,
         DrawTextureParams {
-            dest_size: Some(relative_zoom_vec2(params.dest_size.unwrap())),
+            dest_size: params.dest_size.map(relative_zoom_vec2),
             ..params
         },
     );
@@ -233,6 +233,22 @@ pub fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
         y - texture.height() / 2.0,
         WHITE,
     );
+}
+
+/// Draw a texture relative to the screen with extra params
+pub fn draw_texture_center_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
+    let width;
+    let height;
+
+    if let Some(size) = params.dest_size {
+        width = size.x;
+        height = size.y;
+    } else {
+        width = texture.width();
+        height = texture.height();
+    }
+
+    draw_texture_ex(texture, x - width / 2.0, y - height / 2.0, WHITE, params);
 }
 
 /// Returns the mouse position relative to the screen
@@ -266,4 +282,32 @@ macro_rules! ternary {
             $else
         }
     };
+}
+
+/// Abbreviates a number to a more readable format
+///
+/// # Examples
+///
+/// ```
+/// 1_230         -> "1.23k"
+/// 1_000_000     -> "1.00m"
+/// 1_000_000_000 -> "1.00b"
+/// ```
+pub fn abbreviate_number(num: u32) -> String {
+    let num_string = num.to_string();
+    let length = num_string.len();
+    let mut output = String::new();
+
+    let (suffix, divider) = match length {
+        n if n > 9 => ('b', 1000000000.0),
+        n if n > 6 => ('m', 1000000.0),
+        n if n > 3 => ('k', 1000.0),
+        _ => (' ', 1.0),
+    };
+
+    let decimal = (num as f64) / divider;
+    output.push_str(&format!("{:.2}", decimal));
+    output.push(suffix);
+
+    output
 }

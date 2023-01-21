@@ -1,10 +1,11 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use ak_server::types_game::{Color as ServerColor, ServerWorker, Tile};
+use ak_server::types_game::{Color as ServerColor, ServerWorker, Texture, Tile};
 use derive_new::new;
 use macroquad::color_u8;
-use macroquad::prelude::{uvec2, vec2, Color, UVec2, Vec2, WHITE};
-use macroquad::shapes::draw_line;
+use macroquad::prelude::{uvec2, vec2, Color, UVec2, Vec2, RED, WHITE};
+use macroquad::shapes::{draw_line, draw_rectangle};
+use macroquad::texture::DrawTextureParams;
 use macroquad::time::get_frame_time;
 use rustc_hash::FxHashMap;
 
@@ -15,7 +16,8 @@ use crate::geometry::CollisionRect;
 use crate::map::Map;
 use crate::math::{angle, distance, opposite_angle, project, u_distance};
 use crate::spritesheet::SpriteSheet;
-use crate::util::{draw_text_center, FloatSignum};
+use crate::texture_map::TextureMap;
+use crate::util::{draw_text_center, draw_texture_center_ex, FloatSignum};
 use crate::{derive_id_eq, hashmap};
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
@@ -108,6 +110,10 @@ pub struct Worker {
     /// The index of the ore the worker is currently mining in the [Map]'s ore list
     #[new(value = "None")]
     pub ore: Option<usize>,
+
+    /// Whether the worker is currently mining
+    #[new(value = "false")]
+    pub mining: bool,
 
     #[new(value = "200.0")]
     pub speed: f32,
@@ -253,16 +259,17 @@ impl Worker {
 
                 for (y, row) in game().map.base_map.iter().enumerate() {
                     for (x, wall) in row.iter().enumerate() {
-                        if wall != &Tile::Wall {
+                        let mut collidable = false;
+                        if wall == &Tile::Wall
+                            || game().map.tiles.contains(&uvec2(x as u32, y as u32))
+                        {
+                            collidable = true;
+                        }
+                        if !collidable {
                             continue;
                         }
 
-                        let wall_rect = CollisionRect::new(
-                            x as f32 * SQUARE_SIZE,
-                            y as f32 * SQUARE_SIZE,
-                            SQUARE_SIZE,
-                            SQUARE_SIZE,
-                        );
+                        let wall_rect = Map::pos_to_rect(uvec2(x as u32, y as u32), 1, 1);
 
                         // `hspd`
                         if h_rect.touches_rect(&wall_rect) {
@@ -291,6 +298,7 @@ impl Worker {
 
     /// Updates mining ore
     pub fn update_ore(&mut self) {
+        self.mining = false;
         if let Some(i) = self.ore {
             let ore = &mut game().map.ores[i];
 
@@ -299,8 +307,12 @@ impl Worker {
 
             if ore.as_rect().touches_rect(&expanded_rect) {
                 self.path = None;
-                let (amt, _) = ore.mine(self.id);
+                self.mining = true;
+                let amt = ore.mine(self.id);
                 if amt > 0 {
+                    let ore_map_ref = &mut game().player_mut(self.color).ores;
+                    let ore_map = ore_map_ref.entry(ore.ore).or_insert(0);
+                    *ore_map += amt;
                     println!("mined");
                 }
                 return;
@@ -364,6 +376,37 @@ impl Worker {
         self.sprite().draw(self.rect.left(), self.rect.top());
         if highlight {
             self.rect.draw_lines(2.5, color_u8!(255, 255, 255, 200));
+        }
+
+        if self.mining {
+            draw_texture_center_ex(
+                Texture::MiningIcon.texture(),
+                self.rect.center().x,
+                self.rect.top() - 18.0,
+                DrawTextureParams {
+                    dest_size: Some(vec2(20.0, 20.0)),
+                    ..Default::default()
+                },
+            );
+
+            let ore = &game().map.ores[self.ore.unwrap()];
+            let ratio = ore.time_left(self.id) / ore.ore.cooldown() as f32;
+            let width = self.rect.width;
+            let height = 2.5;
+            draw_rectangle(
+                self.rect.left(),
+                self.rect.top() - 5.0,
+                width,
+                height,
+                WHITE,
+            );
+            draw_rectangle(
+                self.rect.left(),
+                self.rect.top() - 5.0,
+                width * (1.0 - ratio),
+                height,
+                RED,
+            );
         }
 
         // Drawing path and time
