@@ -21,6 +21,8 @@
 		"canonicalize",
 		"chrono",
 		"consts",
+		"cooldown",
+		"cooldowns",
 		"hasher",
 		"hashset",
 		"homebase",

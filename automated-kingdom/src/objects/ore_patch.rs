@@ -2,9 +2,13 @@ use ak_server::types_game::Texture;
 use derive_new::new;
 use macroquad::prelude::{Color, UVec2, GOLD, RED, WHITE};
 use macroquad::shapes::draw_rectangle;
-use macroquad::texture::Texture2D;
+use macroquad::time::get_time;
+use rustc_hash::FxHashMap;
 
+use crate::geometry::CollisionRect;
+use crate::hashmap;
 use crate::map::Map;
+use crate::objects::worker::IdType;
 use crate::texture_map::TextureMap;
 use crate::util::draw_texture_center;
 
@@ -27,6 +31,13 @@ impl Ore {
         }
     }
 
+    /// Cooldown of the ore patch, in seconds
+    pub fn cooldown(&self) -> f64 {
+        match self {
+            Ore::Gold => 0.5,
+        }
+    }
+
     /// Size of the ore patch in tiles
     pub fn size(&self) -> (u32, u32) {
         match self {
@@ -36,7 +47,7 @@ impl Ore {
 }
 
 /// Represents an ore patch, which is a collection of ore in a certain area that can be mined
-#[derive(Debug, PartialEq, Clone, Copy, new)]
+#[derive(Debug, PartialEq, Clone, new)]
 pub struct OrePatch {
     /// Top-left in the [Map]
     pub pos: UVec2,
@@ -49,8 +60,6 @@ pub struct OrePatch {
 
     /// What ore is in this patch
     pub ore: Ore,
-    #[new(value = "ore.texture().texture()")]
-    texture: Texture2D,
 
     /// Max capacity of the patch
     pub max: u32,
@@ -58,13 +67,24 @@ pub struct OrePatch {
     /// How much ore is left in the patch
     #[new(value = "max")]
     pub remaining: u32,
+
+    #[new(value = "hashmap! {}")]
+    pub mine_cooldowns: FxHashMap<IdType, f64>,
 }
 impl OrePatch {
+    pub fn as_rect(&self) -> CollisionRect {
+        Map::pos_to_rect(self.pos, self.width, self.height)
+    }
+
     pub fn draw(&self) {
-        let rect = Map::pos_to_rect(self.pos, self.width, self.height);
+        let rect = self.as_rect();
 
         rect.draw(RED);
-        draw_texture_center(self.texture, rect.center().x, rect.center().y);
+        draw_texture_center(
+            self.ore.texture().texture(),
+            rect.center().x,
+            rect.center().y,
+        );
 
         // Remaining bar
         let radio = self.remaining as f32 / self.max as f32;
@@ -73,9 +93,16 @@ impl OrePatch {
         draw_rectangle(rect.left(), rect.top() - 10.0, w * radio, 10.0, RED);
     }
 
-    pub fn mine(&mut self) -> (u32, Ore) {
+    pub fn mine(&mut self, id: IdType) -> (u32, Ore) {
+        if let Some(last_mined) = self.mine_cooldowns.get(&id) {
+            if get_time() - last_mined < self.ore.cooldown() {
+                return (0, self.ore);
+            }
+        }
+
         if self.remaining > 0 {
             self.remaining -= 1;
+            self.mine_cooldowns.insert(id, get_time());
             (1, self.ore)
         } else {
             (0, self.ore)

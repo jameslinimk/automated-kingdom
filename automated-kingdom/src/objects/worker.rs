@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicU16, Ordering};
 use ak_server::types_game::{Color as ServerColor, ServerWorker, Tile};
 use derive_new::new;
 use macroquad::color_u8;
-use macroquad::prelude::{vec2, Color, UVec2, Vec2, WHITE};
+use macroquad::prelude::{uvec2, vec2, Color, UVec2, Vec2, WHITE};
 use macroquad::shapes::draw_line;
 use macroquad::time::get_frame_time;
 use rustc_hash::FxHashMap;
@@ -13,16 +13,17 @@ use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::map::Map;
-use crate::math::{angle, distance, opposite_angle, project};
+use crate::math::{angle, distance, opposite_angle, project, u_distance};
 use crate::spritesheet::SpriteSheet;
 use crate::util::{draw_text_center, FloatSignum};
 use crate::{derive_id_eq, hashmap};
 
 pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
+pub type IdType = u16;
 
 /// Returns a new id for the global id system
 #[inline]
-pub fn new_id() -> u16 {
+pub fn new_id() -> IdType {
     GLOBAL_ID.fetch_add(1, Ordering::Relaxed)
 }
 
@@ -90,7 +91,7 @@ macro_rules! direction_sheets {
 #[derive(Debug, Clone, new)]
 pub struct Worker {
     #[new(value = "new_id()")]
-    pub id: u16,
+    pub id: IdType,
 
     #[new(value = "10")]
     pub max_hp: u16,
@@ -103,6 +104,10 @@ pub struct Worker {
 
     #[new(value = "None")]
     pub path: Option<Vec<Vec2>>,
+
+    /// The index of the ore the worker is currently mining in the [Map]'s ore list
+    #[new(value = "None")]
+    pub ore: Option<usize>,
 
     #[new(value = "200.0")]
     pub speed: f32,
@@ -117,7 +122,7 @@ pub struct Worker {
     vspd: f32,
 
     #[new(value = "None")]
-    pub moving_away_from: Option<u16>,
+    pub moving_away_from: Option<IdType>,
 
     pub color: ServerColor,
 
@@ -284,12 +289,59 @@ impl Worker {
         }
     }
 
+    /// Updates mining ore
+    pub fn update_ore(&mut self) {
+        if let Some(i) = self.ore {
+            let ore = &mut game().map.ores[i];
+
+            let mut expanded_rect = self.rect;
+            expanded_rect.expand_center(20.0, 20.0);
+
+            if ore.as_rect().touches_rect(&expanded_rect) {
+                self.path = None;
+                let (amt, _) = ore.mine(self.id);
+                if amt > 0 {
+                    println!("mined");
+                }
+                return;
+            }
+
+            // Path to ore
+            if self.path.is_none() {
+                // Getting closest tile
+                let top_left = ore.pos - uvec2(1, 1);
+                let bottom_right = ore.pos + uvec2(ore.width, ore.height);
+
+                // Get every tile around the ore
+                let mut tiles = Vec::new();
+                for y in top_left.y..=bottom_right.y {
+                    for x in top_left.x..=bottom_right.x {
+                        tiles.push(uvec2(x, y));
+                    }
+                }
+
+                // Get the closest tile
+                let closest_tile = tiles
+                    .iter()
+                    .min_by(|a, b| {
+                        let a_dist = u_distance(&Map::world_to_pos(self.rect.top_left()), a);
+                        let b_dist = u_distance(&Map::world_to_pos(self.rect.top_left()), b);
+                        a_dist.partial_cmp(&b_dist).unwrap()
+                    })
+                    .unwrap();
+
+                self.set_path(*closest_tile);
+            }
+        }
+    }
+
     pub fn update(&mut self) {
         // Reset velocities
         self.hspd = 0.0;
         self.vspd = 0.0;
 
         // Movement
+        self.update_ore();
         self.update_path();
         self.update_direction();
         self.update_collision();

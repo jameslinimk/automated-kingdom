@@ -173,4 +173,12 @@ impl CollisionRect {
     pub fn set_bottom(&mut self, bottom: f32) {
         self.y = bottom - self.height;
     }
+
+    /// Will expand the rectangle by the given amount in each direction, keeping the center the same
+    pub fn expand_center(&mut self, width_diff: f32, height_diff: f32) {
+        let center = self.center();
+        self.width += width_diff;
+        self.height += height_diff;
+        self.set_center(center);
+    }
 }

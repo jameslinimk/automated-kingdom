@@ -2,7 +2,7 @@
 
 use std::f32::consts::PI;
 
-use macroquad::prelude::{vec2, Vec2};
+use macroquad::prelude::{vec2, UVec2, Vec2};
 
 /// Returns the radians between two [Vec2]'s
 pub fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
@@ -24,6 +24,14 @@ pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
 pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
     let x_dist = p2.x - p1.x;
     let y_dist = p2.y - p1.y;
+
+    (x_dist * x_dist + y_dist * y_dist).sqrt()
+}
+
+/// Finds distance between 2 [UVec2]'s
+pub fn u_distance(p1: &UVec2, p2: &UVec2) -> f32 {
+    let x_dist = p2.x as f32 - p1.x as f32;
+    let y_dist = p2.y as f32 - p1.y as f32;
 
     (x_dist * x_dist + y_dist * y_dist).sqrt()
 }

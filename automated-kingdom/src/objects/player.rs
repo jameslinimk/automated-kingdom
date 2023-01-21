@@ -3,6 +3,7 @@ use derive_new::new;
 use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED};
 use macroquad::window::{screen_height, screen_width};
 
+use crate::game::game;
 use crate::map::Map;
 use crate::objects::worker::Worker;
 use crate::screen_size;
@@ -57,8 +58,19 @@ impl Player {
         }
 
         if is_mouse_button_pressed(MouseButton::Right) {
+            let pos = Map::world_to_pos(screen_mouse_pos());
+
             if let Some(worker) = self.selected_worker() {
-                worker.set_path(Map::world_to_pos(screen_mouse_pos()))
+                for (i, ore) in game().map.ores.iter().enumerate() {
+                    if ore.as_rect().touches_point(&screen_mouse_pos()) {
+                        worker.ore = Some(i);
+                        worker.path = None;
+                        return;
+                    }
+                }
+
+                worker.set_path(pos);
+                worker.ore = None;
             }
         }
     }
@@ -73,7 +85,6 @@ impl Player {
 
     pub fn draw_ui(&mut self) {
         /* ------------------------------- Bottom part ------------------------------ */
-        // General info
         let general_info_width = screen_size!(128.0, 192.0, 256.0);
 
         draw_rel_rectangle(

@@ -1,9 +1,5 @@
 #![feature(concat_idents)]
 
-use std::thread;
-use std::time::Duration;
-
-use macroquad::time::{get_fps, get_frame_time};
 use macroquad::window::{next_frame, Conf};
 
 use crate::config::config;
@@ -72,20 +68,12 @@ fn cfg() -> Conf {
 
 #[macroquad::main(cfg)]
 async fn main() {
-    // std::env::set_var("RUST_BACKTRACE", "1");
-
     Game::preload();
     game().init();
+
     loop {
-        println!("{:?}", get_fps());
         game().update();
         game().draw();
         next_frame().await;
-
-        // limit fps
-        let frame_time = get_frame_time();
-        if frame_time < 1.0 / 60.0 {
-            thread::sleep(Duration::from_secs_f32(1.0 / 60.0 - frame_time));
-        }
     }
 }
