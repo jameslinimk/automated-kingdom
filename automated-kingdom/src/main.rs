@@ -1,4 +1,5 @@
 #![feature(concat_idents)]
+#![allow(dead_code)]
 
 use macroquad::window::{next_frame, Conf};
 

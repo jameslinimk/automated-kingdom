@@ -142,6 +142,22 @@ pub(crate) fn draw_text_top_left(text: &str, x: f32, y: f32, font_size: f32, col
     )
 }
 
+/// Draw text at given top left position
+pub(crate) fn draw_rel_text_top_left(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
+    draw_text_ex(
+        text,
+        relative_x(x),
+        relative_y(y + font_size / 2.0),
+        TextParams {
+            font_size: font_size as u16,
+            font_scale: 1.0,
+            color,
+            font: *SILVER_FONT,
+            ..Default::default()
+        },
+    )
+}
+
 /// Draws text within a given rectangle, wrapping the text to fit the rectangle
 pub(crate) fn draw_text_within_rect(
     text: &str,
@@ -231,7 +247,10 @@ pub(crate) fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: Dr
         relative_y(y),
         WHITE,
         DrawTextureParams {
-            dest_size: params.dest_size.map(relative_zoom_vec2),
+            dest_size: params
+                .dest_size
+                .map(relative_zoom_vec2)
+                .or_else(|| Some(relative_zoom_vec2(vec2(texture.width(), texture.height())))),
             ..params
         },
     );
@@ -306,6 +325,8 @@ macro_rules! ternary {
 /// # Examples
 ///
 /// ```rs
+/// 1             => "1"
+/// 123           => "123"
 /// 1_230         => "1.23k"
 /// 1_000_000     => "1.00m"
 /// 1_000_000_000 => "1.00b"
@@ -322,8 +343,15 @@ pub(crate) fn abbreviate_number(num: u32) -> String {
     };
 
     let decimal = (num as f64) / divider;
-    output.push_str(&format!("{:.2}", decimal));
-    output.push(suffix);
+    if decimal.fract() > 0.0 {
+        output.push_str(&format!("{:.2}", decimal));
+    } else {
+        output.push_str(&format!("{}", decimal.trunc()));
+    }
+
+    if suffix != ' ' {
+        output.push(suffix);
+    }
 
     output
 }

@@ -5,12 +5,13 @@ use std::f32::consts::FRAC_1_SQRT_2;
 use derive_new::new;
 use macroquad::prelude::rand::gen_range;
 use macroquad::prelude::{
-    get_frame_time, get_time, is_key_down, is_key_pressed, screen_height, screen_width, set_camera,
-    vec2, Camera2D, KeyCode, Vec2,
+    get_frame_time, get_time, is_key_down, is_key_pressed, mouse_wheel, screen_height,
+    screen_width, set_camera, vec2, Camera2D, KeyCode, Vec2,
 };
 
 use crate::math::{angle, distance, ease_in_out, project};
 use crate::objects::player::bottom_ui_height;
+use crate::util::FloatSignum;
 
 /// Info about the a camera shake, sent to the camera to start a shake
 #[derive(Debug, Clone, Copy)]
@@ -63,6 +64,8 @@ impl Camera {
     /// Updates the camera, should be called every frame
     pub(crate) fn update(&mut self) {
         /* --------------------------------- Zooming -------------------------------- */
+        let (_, y_scroll) = mouse_wheel();
+        self.increase_zoom(y_scroll.sign() * 0.2);
         if is_key_pressed(KeyCode::Equal) {
             self.increase_zoom(0.2);
         }

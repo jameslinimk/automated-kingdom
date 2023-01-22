@@ -24,6 +24,7 @@
 		"consts",
 		"cooldown",
 		"cooldowns",
+		"fract",
 		"hasher",
 		"hashset",
 		"homebase",
@@ -43,6 +44,7 @@
 		"signum",
 		"spritesheet",
 		"spritesheets",
+		"trunc",
 		"tzip",
 		"uvec"
 	]

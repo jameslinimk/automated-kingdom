@@ -7,7 +7,7 @@ cargo build -r
 
 cd ..\launcher\
 node zip.js
-timeout 1
+ping -n 1 127.0.0.1
 cargo build -r
 
 echo Finished building

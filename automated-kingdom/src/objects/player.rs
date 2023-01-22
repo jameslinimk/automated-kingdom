@@ -1,18 +1,23 @@
 use ak_server::types_game::{Color, ServerPlayer};
 use derive_new::new;
-use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED};
+use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED, WHITE};
+use macroquad::text::measure_text;
 use macroquad::texture::DrawTextureParams;
 use macroquad::window::{screen_height, screen_width};
 use rustc_hash::FxHashMap;
 use strum::IntoEnumIterator;
 
+use crate::conf::SILVER_FONT;
 use crate::game::game;
 use crate::map::Map;
 use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
 use crate::screen_size;
 use crate::texture_map::TextureMap;
-use crate::util::{abbreviate_number, draw_rel_rectangle, draw_rel_texture_ex, screen_mouse_pos};
+use crate::util::{
+    abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture_ex,
+    screen_mouse_pos,
+};
 
 pub(crate) fn bottom_ui_height() -> f32 {
     screen_size!(100.0, 150.0, 175.0)
@@ -124,7 +129,18 @@ impl Player {
                 },
             );
 
-            let amt = abbreviate_number(*amt);
+            let font_size = 32;
+            let amt = format!("x{}", abbreviate_number(*amt));
+            let measurements = measure_text(&amt, Some(*SILVER_FONT), font_size, 1.0);
+            draw_rel_text_top_left(
+                &amt,
+                32.0 + margin * 2.0,
+                screen_height()
+                    - (bottom_ui_height() - 32.0 * (i as f32) - margin * ((i + 1) as f32))
+                    + measurements.height / 2.0,
+                font_size as f32,
+                WHITE,
+            );
         }
 
         // Selected worker image

@@ -13,7 +13,9 @@ use crate::objects::ore_patch::{Ore, OrePatch};
 use crate::objects::player::bottom_ui_height;
 use crate::objects::worker::workers_iter;
 use crate::texture_map::TextureMap;
-use crate::util::{draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, screen_mouse_pos};
+use crate::util::{
+    draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, relative_zoom, screen_mouse_pos,
+};
 use crate::{hashset, hex, ternary};
 
 #[derive(PartialEq, Clone, Debug, new)]
@@ -83,7 +85,7 @@ impl Map {
             width + margin * 2.0 - border_width,
             height + margin * 2.0 - border_width,
         );
-        border_rect.draw_lines(2.5, hex!("#A0793D"));
+        border_rect.draw_lines(relative_zoom(3.0), hex!("#A0793D"));
 
         /* ----------------------------------- Map ---------------------------------- */
         for (y, row) in self.base_map.iter().enumerate() {
@@ -115,10 +117,10 @@ impl Map {
             (cam_view.y - bottom_ui_height()) / divisor,
         );
 
-        cam_rect.draw_lines(2.0, RED);
+        cam_rect.draw_lines(relative_zoom(2.0), RED);
 
-        let person_dot_size = 10.0;
-        let ore_dot_size = 14.0;
+        let person_dot_size = 6.0;
+        let ore_dot_size = 8.0;
 
         // Workers
         for worker in workers_iter() {

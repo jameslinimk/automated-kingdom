@@ -34,8 +34,8 @@ impl CollisionRect {
         CollisionRect::new_rel(
             center.x - width / 2.0,
             center.y - height / 2.0,
-            relative_zoom(width),
-            relative_zoom(height),
+            width,
+            height,
         )
     }
 
