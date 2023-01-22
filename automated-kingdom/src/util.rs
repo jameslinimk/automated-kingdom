@@ -68,13 +68,14 @@ macro_rules! hashset {
     };
 }
 
-/// Trait to fix `f32.signum` not doing `0.0`
+/// Trait to fix [f32::signum] not doing `0.0`
 pub(crate) trait FloatSignum {
+    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative
     fn sign(&self) -> f32;
+    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative but as an [i8]
     fn sign_i8(&self) -> i8;
 }
 impl FloatSignum for f32 {
-    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative
     fn sign(&self) -> f32 {
         if *self > 0.0 {
             1.0
@@ -85,7 +86,6 @@ impl FloatSignum for f32 {
         }
     }
 
-    /// Returns `0.0` if `self` is `0.0`, `1.0` if `self` is positive, and `-1.0` if `self` is negative but as an [i8]
     fn sign_i8(&self) -> i8 {
         if *self > 0.0 {
             1
@@ -184,27 +184,27 @@ pub(crate) fn draw_text_within_rect(
     }
 }
 
-/// Returns a position relative to the screen
+/// Returns a position relative to the screen, so items can be drawn that aren't affected by the camera
 pub(crate) fn relative_pos(pos: Vec2) -> Vec2 {
     game().camera.camera.screen_to_world(pos)
 }
 
-/// Returns the x position relative to the screen
+/// Returns the x position relative to the screen, so items can be drawn that aren't affected by the camera
 pub(crate) fn relative_x(x: f32) -> f32 {
     game().camera.camera.screen_to_world(vec2(x, 0.0)).x
 }
 
-/// Returns the y position relative to the screen
+/// Returns the y position relative to the screen, so items can be drawn that aren't affected by the camera
 pub(crate) fn relative_y(y: f32) -> f32 {
     game().camera.camera.screen_to_world(vec2(0.0, y)).y
 }
 
-/// Returns the given value without zoom
+/// Returns the given value without the current camera zoom, counteracting the zoom
 pub(crate) fn relative_zoom(v: f32) -> f32 {
     v / game().camera.zoom
 }
 
-/// Returns the given [Vec2] without zoom
+/// Returns the given [Vec2] without the current camera zoom, counteracting the zoom
 pub(crate) fn relative_zoom_vec2(v: Vec2) -> Vec2 {
     v / game().camera.zoom
 }
@@ -256,7 +256,7 @@ pub(crate) fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: Dr
     );
 }
 
-/// Draw a texture relative to the screen
+/// Draw a texture centered to a certain position
 pub(crate) fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
     draw_texture(
         texture,
@@ -308,7 +308,7 @@ macro_rules! hex {
     }};
 }
 
-/// Ternary macro
+/// Ternary macro, if `cond` is true, return `if`, else return `else`
 #[macro_export]
 macro_rules! ternary {
     ($cond:expr, $if:expr, $else:expr) => {

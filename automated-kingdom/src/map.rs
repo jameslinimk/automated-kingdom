@@ -1,3 +1,5 @@
+//! Contains map struct and related functions
+
 use ak_server::types_game::{Texture, Tile};
 use derive_new::new;
 use macroquad::prelude::{is_mouse_button_down, uvec2, vec2, MouseButton, UVec2, Vec2, RED, WHITE};
@@ -19,30 +21,38 @@ use crate::util::{
 };
 use crate::{hashset, hex, ternary};
 
+/// Stores information about the map, such as walls, tiles, ores, etc. Player specific stuff, IE buildings, workers, etc. are stored in the [crate::objects::player::Player] struct
 #[derive(PartialEq, Clone, Debug, new)]
 pub(crate) struct Map {
+    /// Stores the base map, which is the map without any player specific stuff and just walls
     #[new(value = "string_to_map(TEST_MAP).0")]
     pub(crate) base_map: Vec<Vec<Tile>>,
 
+    /// Stores the tiles that that on the [Self::base_map] that are collidable, meaning workers can't walk on them
     #[new(value = "hashset![]")]
     pub(crate) tiles: FxHashSet<UVec2>,
 
+    /// Stores ore patches around the map
     #[new(value = "vec![
         OrePatch::new(uvec2(5, 5), Ore::Gold, 1000)
     ]")]
     pub(crate) ores: Vec<OrePatch>,
 
+    /// Stores the width of the [Self::base_map]
     #[new(value = "string_to_map(TEST_MAP).1")]
     pub(crate) width: usize,
 
+    /// Stores the height of the [Self::base_map]
     #[new(value = "string_to_map(TEST_MAP).2")]
     pub(crate) height: usize,
 }
 impl Map {
+    /// Returns a tile at a given position
     pub(crate) fn get(&self, pos: UVec2) -> Tile {
         self.base_map[pos.y as usize][pos.x as usize]
     }
 
+    /// Draws the map and all the ores to the screen
     pub(crate) fn draw(&self) {
         for (y, row) in self.base_map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
@@ -61,6 +71,7 @@ impl Map {
         }
     }
 
+    /// Draws a minimap of the map to the screen, with the camera position, view indicator, and dots for ore patches, workers, etc.
     pub(crate) fn draw_minimap(&self) {
         let divisor = 10.0;
         let new_square_size = SQUARE_SIZE / divisor;
@@ -217,6 +228,7 @@ impl Map {
     }
 }
 
+/// Converts a string of `#` and `.` to a [Map]. Returns `(map, width, height)`
 fn string_to_map(string: &'static str) -> (Vec<Vec<Tile>>, usize, usize) {
     let mut map = vec![];
     for line in string.lines() {

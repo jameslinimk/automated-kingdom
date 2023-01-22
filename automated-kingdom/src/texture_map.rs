@@ -1,3 +1,5 @@
+//! Module for loading and storing textures, as well as some utility traits for drawing sprites
+
 use std::sync::Mutex;
 
 use ak_server::types_game::{Sprite, Texture};
@@ -22,10 +24,10 @@ pub(crate) fn load_texture(name: Texture, bytes: &'static [u8]) {
 
 /// trait for getting a texture from the [static@TEXTURE_MAP]
 pub(crate) trait TextureMap {
+    /// Gets the given texture from the [static@TEXTURE_MAP]
     fn texture(&self) -> Texture2D;
 }
 impl TextureMap for Texture {
-    /// Gets the given texture from the [static@TEXTURE_MAP]
     fn texture(&self) -> Texture2D {
         *TEXTURE_MAP
             .lock()
@@ -37,10 +39,10 @@ impl TextureMap for Texture {
 
 /// Trait for drawing [Sprite]'s sent from server in the game
 pub(crate) trait DrawSprite {
+    /// Draw the given sprite at the given top-left position
     fn draw(&self, x: f32, y: f32);
 }
 impl DrawSprite for Sprite {
-    /// Draw the given sprite at the given top-left position
     fn draw(&self, x: f32, y: f32) {
         match self {
             Sprite::Sprite(texture) => {

@@ -28,9 +28,11 @@ impl BuildingTrait for House {
 #[enum_dispatch(BuildingTrait)]
 #[derive(Clone, Copy, Assoc, EnumIter)]
 #[func(pub(crate) fn texture(&self) -> Texture)]
+#[func(pub(crate) fn icon(&self) -> Texture)]
 #[func(pub(crate) fn cost(&self) -> FxHashMap<Ore, u32>)]
 pub(crate) enum Building {
     #[assoc(texture = Texture::House)]
+    #[assoc(icon = Texture::HouseIcon)]
     #[assoc(cost = hashmap! { Ore::Gold => 10 })]
     House,
 }

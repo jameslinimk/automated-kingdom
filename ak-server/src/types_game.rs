@@ -21,6 +21,7 @@ pub enum Texture {
 
     // Buildings
     House,
+    HouseIcon,
 
     // [code-gen] workers
     BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,

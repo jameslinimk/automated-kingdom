@@ -185,6 +185,8 @@ impl Player {
             bottom_ui_height(),
             GREEN,
         );
+
+        for building in Building::iter() {}
     }
 
     pub(crate) fn draw(&mut self) {

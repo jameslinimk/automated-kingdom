@@ -150,7 +150,7 @@ impl Worker {
         }
     }
 
-    /// Sets the direction of the worker based the current `hspd` and `vspd`
+    /// Sets the direction of the worker based the current [Self::hspd] and [Self::vspd]
     fn update_direction(&mut self) {
         let normalized = vec2(self.hspd, self.vspd);
 
@@ -177,7 +177,7 @@ impl Worker {
         };
     }
 
-    /// Returns a mutable reference to either the walk or idle spritesheets depending on the current `hspd` and `vspd`
+    /// Returns a mutable reference to either the walk or idle spritesheets depending on the current [Self::hspd] and [Self::vspd]
     fn spritesheet_mut(&mut self) -> &mut FxHashMap<WalkDirection, SpriteSheet> {
         if self.hspd == 0.0 && self.vspd == 0.0 {
             &mut self.idle_spritesheets
@@ -186,7 +186,7 @@ impl Worker {
         }
     }
 
-    /// Returns a reference to either the walk or idle spritesheets depending on the current `hspd` and `vspd`
+    /// Returns a reference to either the walk or idle spritesheets depending on the current [Self::hspd] and [Self::vspd]
     fn spritesheet(&self) -> &FxHashMap<WalkDirection, SpriteSheet> {
         if self.hspd == 0.0 && self.vspd == 0.0 {
             &self.idle_spritesheets
@@ -207,7 +207,7 @@ impl Worker {
         self.spritesheet_mut().get_mut(&dir).unwrap()
     }
 
-    /// Moves the worker based on the current `path`. Changes `hspd` and `vspd`
+    /// Moves the worker based on the current `path`. Changes [Self::hspd] and [Self::vspd]
     fn update_path(&mut self) {
         if let Some(path) = &mut self.path {
             if !path.is_empty() {
@@ -234,7 +234,7 @@ impl Worker {
         }
     }
 
-    /// Make sure the worker doesn't collide with other workers or walls, if it does, slowly move it out of the way. Changes `hspd` and `vspd`
+    /// Make sure the worker doesn't collide with other workers or walls, if it does, slowly move it out of the way. Changes [Self::hspd] and [Self::vspd]
     pub(crate) fn update_collision(&mut self) {
         for worker in
             workers_iter().filter(|w| w.id != self.id && w.moving_away_from != Some(self.id))
@@ -360,7 +360,7 @@ impl Worker {
         // Updating spritesheet
         self.sprite_mut().update();
 
-        // Apply `hspd` and `vspd`
+        // Apply [Self::hspd] and [Self::vspd]
         self.rect
             .set_top_left(self.rect.top_left() + vec2(self.hspd, self.vspd))
     }

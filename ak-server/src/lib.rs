@@ -1,5 +1,3 @@
-#![allow(special_module_name)]
-
 pub mod game;
 pub mod types_client;
 pub mod types_game;

@@ -1,3 +1,5 @@
+//! Used to create and draw sprite sheets
+
 use ak_server::types_game::{Sprite, Texture};
 use derive_new::new;
 use macroquad::prelude::{Rect, Texture2D, WHITE};
