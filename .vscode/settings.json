@@ -46,6 +46,7 @@
 		"spritesheets",
 		"trunc",
 		"tzip",
-		"uvec"
+		"uvec",
+		"winres"
 	]
 }
