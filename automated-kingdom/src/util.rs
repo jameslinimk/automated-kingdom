@@ -288,10 +288,10 @@ macro_rules! ternary {
 ///
 /// # Examples
 ///
-/// ```
-/// 1_230         -> "1.23k"
-/// 1_000_000     -> "1.00m"
-/// 1_000_000_000 -> "1.00b"
+/// ```rs
+/// 1_230         => "1.23k"
+/// 1_000_000     => "1.00m"
+/// 1_000_000_000 => "1.00b"
 /// ```
 pub fn abbreviate_number(num: u32) -> String {
     let num_string = num.to_string();
