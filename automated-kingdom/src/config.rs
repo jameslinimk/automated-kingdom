@@ -1,5 +1,3 @@
-use std::fs;
-
 use derive_new::new;
 use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
@@ -41,7 +39,7 @@ fn get_path<T: AsRef<str>>(path: T) -> Option<String> {
     if !path.exists() {
         return None;
     }
-    let contents = match fs::read_to_string(path) {
+    let contents = match std::fs::read_to_string(path) {
         Ok(v) => v,
         Err(_) => return None,
     };

@@ -313,7 +313,6 @@ impl Worker {
                     let ore_map_ref = &mut game().player_mut(self.color).ores;
                     let ore_map = ore_map_ref.entry(ore.ore).or_insert(0);
                     *ore_map += amt;
-                    println!("mined");
                 }
                 return;
             }

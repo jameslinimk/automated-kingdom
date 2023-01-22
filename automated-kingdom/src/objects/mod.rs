@@ -1,3 +1,4 @@
+pub(crate) mod buildings;
 pub(crate) mod camera;
 pub(crate) mod ore_patch;
 pub(crate) mod player;

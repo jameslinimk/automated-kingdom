@@ -36,5 +36,11 @@
 		],
 		"description": "Quickly println!",
 		"body": "println!(\"$1\");"
+	},
+	"cpub": {
+		"scope": "rust",
+		"prefix": "cpub",
+		"description": "Writes pub(crate)",
+		"body": "pub(crate)"
 	}
 }

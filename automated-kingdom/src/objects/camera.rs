@@ -154,7 +154,7 @@ impl Camera {
 
     /// Sets the camera zoom, clamped between 0.5 and 2.0
     pub(crate) fn set_zoom(&mut self, new_zoom: f32) {
-        self.zoom = new_zoom.clamp(0.5, 2.0);
+        self.zoom = new_zoom.clamp(0.5, 3.0);
         self.camera.zoom = vec2(2.0 / screen_width(), -2.0 / screen_height()) * self.zoom;
     }
 

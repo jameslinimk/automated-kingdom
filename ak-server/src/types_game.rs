@@ -13,9 +13,14 @@ pub enum Color {
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Texture {
     Wall,
+
+    // Ore stuff
+    MiningIcon,
     GoldPatch,
     GoldIcon,
-    MiningIcon,
+
+    // Buildings
+    House,
 
     // [code-gen] workers
     BlueWorkerIcon, BlueWorkerIdleDown, BlueWorkerIdleUp, BlueWorkerIdleLeft, BlueWorkerIdleRight, BlueWorkerWalkDown, BlueWorkerWalkUp, BlueWorkerWalkLeft, BlueWorkerWalkRight,

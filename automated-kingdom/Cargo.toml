@@ -17,6 +17,8 @@ ak-server = { path = "../ak-server" }
 ron = "0.8.0"
 strum = "0.24.1"
 strum_macros = "0.24.3"
+enum-assoc = "0.4.0"
+enum_dispatch = "0.3.11"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 image = "0.24.5"

@@ -10,13 +10,14 @@ use strum::IntoEnumIterator;
 use crate::conf::SILVER_FONT;
 use crate::game::game;
 use crate::map::Map;
+use crate::objects::buildings::Building;
 use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
 use crate::screen_size;
 use crate::texture_map::TextureMap;
 use crate::util::{
     abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture_ex,
-    screen_mouse_pos,
+    draw_texture_center, mouse_pos, screen_mouse_pos,
 };
 
 pub(crate) fn bottom_ui_height() -> f32 {
@@ -47,6 +48,13 @@ pub(crate) struct Player {
         temp
     }")]
     pub(crate) ores: FxHashMap<Ore, u32>,
+
+    #[new(value = "vec![]")]
+    pub(crate) buildings: Vec<Building>,
+
+    /// Selected building to place
+    #[new(value = "None")]
+    pub(crate) selected_new_building: Option<Building>,
 }
 impl Player {
     pub(crate) fn as_server(&self) -> ServerPlayer {
@@ -62,7 +70,9 @@ impl Player {
         }
     }
 
-    pub(crate) fn update(&mut self) {
+    /// Updates controlling workers
+    pub(crate) fn update_workers(&mut self) {
+        // Selecting workers
         if is_mouse_button_pressed(MouseButton::Left) {
             for (i, worker) in self.workers.iter().enumerate() {
                 if worker.rect.touches_point(&screen_mouse_pos()) {
@@ -76,6 +86,7 @@ impl Player {
             }
         }
 
+        // Right click action
         if is_mouse_button_pressed(MouseButton::Right) {
             let pos = Map::world_to_pos(screen_mouse_pos());
 
@@ -92,6 +103,19 @@ impl Player {
                 worker.ore = None;
             }
         }
+    }
+
+    /// Updates placing buildings
+    pub(crate) fn update_placing(&mut self) {
+        if let Some(selected) = self.selected_new_building {
+            let mp = mouse_pos();
+            draw_texture_center(selected.texture().texture(), mp.x, mp.y);
+        }
+    }
+
+    pub(crate) fn update(&mut self) {
+        self.update_workers();
+        self.update_placing();
     }
 
     fn selected_worker(&mut self) -> Option<&mut Worker> {

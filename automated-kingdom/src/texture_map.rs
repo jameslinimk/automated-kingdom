@@ -20,12 +20,12 @@ pub(crate) fn load_texture(name: Texture, bytes: &'static [u8]) {
     TEXTURE_MAP.lock().unwrap().insert(name, texture);
 }
 
-/// trait for getting a texture from the [TEXTURE_MAP]
+/// trait for getting a texture from the [static@TEXTURE_MAP]
 pub(crate) trait TextureMap {
     fn texture(&self) -> Texture2D;
 }
 impl TextureMap for Texture {
-    /// Gets the given texture from the [TEXTURE_MAP]
+    /// Gets the given texture from the [static@TEXTURE_MAP]
     fn texture(&self) -> Texture2D {
         *TEXTURE_MAP
             .lock()

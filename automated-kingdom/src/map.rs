@@ -9,6 +9,7 @@ use rustc_hash::FxHashSet;
 use crate::conf::SQUARE_SIZE;
 use crate::game::game;
 use crate::geometry::CollisionRect;
+use crate::objects::buildings::BuildingTrait;
 use crate::objects::ore_patch::{Ore, OrePatch};
 use crate::objects::player::bottom_ui_height;
 use crate::objects::worker::workers_iter;
@@ -175,6 +176,16 @@ impl Map {
                 }
             }
         }
+
+        for player in game().players.iter() {
+            for building in player.buildings.iter() {
+                for x in building.pos().x..building.pos().x + building.size().0 {
+                    for y in building.pos().y..building.pos().y + building.size().1 {
+                        self.tiles.insert(uvec2(x, y));
+                    }
+                }
+            }
+        }
     }
 
     /// Updates the camera bounds based on the current base map size
@@ -195,12 +206,12 @@ impl Map {
         )
     }
 
-    /// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
+    /// Inverse of [Self::world_to_pos]. Converts a location on a [Map] to a world position
     pub(crate) fn pos_to_world(pos: UVec2) -> Vec2 {
         vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
     }
 
-    /// Inverse of [pos_to_world], converts a world position to a location on a [Map]
+    /// Inverse of [Self::pos_to_world], converts a world position to a location on a [Map]
     pub(crate) fn world_to_pos(pos: Vec2) -> UVec2 {
         uvec2((pos.x / SQUARE_SIZE) as u32, (pos.y / SQUARE_SIZE) as u32)
     }

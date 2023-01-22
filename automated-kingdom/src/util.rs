@@ -150,7 +150,7 @@ pub(crate) fn draw_rel_text_top_left(text: &str, x: f32, y: f32, font_size: f32,
         relative_y(y + font_size / 2.0),
         TextParams {
             font_size: font_size as u16,
-            font_scale: 1.0,
+            font_scale: 1.0 / game().camera.zoom,
             color,
             font: *SILVER_FONT,
             ..Default::default()
