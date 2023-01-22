@@ -1,6 +1,6 @@
 //! Utility functions and macros
 
-use macroquad::prelude::{mouse_position, vec2, Color, Vec2, WHITE};
+use macroquad::prelude::{mouse_position, vec2, Color, UVec2, Vec2, WHITE};
 use macroquad::shapes::{draw_rectangle, draw_rectangle_lines};
 use macroquad::text::{draw_text_ex, measure_text, TextParams};
 use macroquad::texture::{draw_texture, draw_texture_ex, DrawTextureParams, Texture2D};
@@ -239,6 +239,10 @@ pub(crate) fn draw_rel_rectangle_lines(
     );
 }
 
+pub(crate) fn draw_rel_texture(texture: Texture2D, x: f32, y: f32) {
+    draw_texture(texture, relative_x(x), relative_y(y), WHITE);
+}
+
 /// Draw a texture relative to the screen with extra params
 pub(crate) fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
     draw_texture_ex(
@@ -306,6 +310,12 @@ macro_rules! hex {
         let b = u8::from_str_radix(&$hex[5..7], 16).unwrap();
         macroquad::prelude::Color::from_rgba(r, g, b, 255)
     }};
+    ($hex:expr, $alpha:expr) => {{
+        let r = u8::from_str_radix(&$hex[1..3], 16).unwrap();
+        let g = u8::from_str_radix(&$hex[3..5], 16).unwrap();
+        let b = u8::from_str_radix(&$hex[5..7], 16).unwrap();
+        macroquad::prelude::Color::from_rgba(r, g, b, $alpha)
+    }};
 }
 
 /// Ternary macro, if `cond` is true, return `if`, else return `else`
@@ -342,9 +352,9 @@ pub(crate) fn abbreviate_number(num: u32) -> String {
         _ => (' ', 1.0),
     };
 
-    let decimal = (num as f64) / divider;
+    let decimal = (num as f32) / divider;
     if decimal.fract() > 0.0 {
-        output.push_str(&format!("{:.2}", decimal));
+        output.push_str(&format!("{decimal:.2}"));
     } else {
         output.push_str(&format!("{}", decimal.trunc()));
     }
@@ -354,4 +364,17 @@ pub(crate) fn abbreviate_number(num: u32) -> String {
     }
 
     output
+}
+
+pub(crate) trait UVec2SaturatedSub {
+    fn saturated_sub(self, other: Self) -> Self;
+}
+
+impl UVec2SaturatedSub for UVec2 {
+    fn saturated_sub(self, other: Self) -> Self {
+        UVec2::new(
+            self.x.saturating_sub(other.x),
+            self.y.saturating_sub(other.y),
+        )
+    }
 }

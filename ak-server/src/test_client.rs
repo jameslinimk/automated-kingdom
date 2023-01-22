@@ -22,10 +22,10 @@ pub fn main() {
         let (n, _) = socket.recv_from(&mut buf).expect("Didn't receive data");
         let filled_buf = &mut buf[..n];
 
-        println!("line: {:?}", filled_buf);
+        println!("line: {filled_buf:?}");
 
         let (data, ping) = rmp_serde::from_slice::<ServerResponse>(filled_buf).unwrap();
-        println!("{:?} (ping: {})", data, ping);
+        println!("{data:?} (ping: {ping})");
 
         sleep(Duration::from_millis(1500));
     }

@@ -424,7 +424,7 @@ impl Worker {
                 let time = path_time(&self.rect.top_left(), self.speed, path);
                 let font_size = 23.0;
                 draw_text_center(
-                    &format!("{:.2}", time),
+                    &format!("{time:.2}"),
                     self.rect.center().x,
                     self.rect.top() - font_size / 2.0,
                     font_size,

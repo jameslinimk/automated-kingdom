@@ -1,24 +1,27 @@
 use ak_server::types_game::{Color, ServerPlayer};
 use derive_new::new;
-use macroquad::prelude::{is_mouse_button_pressed, MouseButton, BLUE, GREEN, RED, WHITE};
+use macroquad::prelude::{
+    is_mouse_button_pressed, uvec2, MouseButton, UVec2, BLUE, GREEN, RED, WHITE,
+};
 use macroquad::text::measure_text;
-use macroquad::texture::DrawTextureParams;
+use macroquad::texture::{draw_texture, DrawTextureParams};
 use macroquad::window::{screen_height, screen_width};
 use rustc_hash::FxHashMap;
 use strum::IntoEnumIterator;
 
 use crate::conf::SILVER_FONT;
 use crate::game::game;
+use crate::geometry::CollisionRect;
 use crate::map::Map;
 use crate::objects::buildings::Building;
 use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
-use crate::screen_size;
 use crate::texture_map::TextureMap;
 use crate::util::{
     abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture_ex,
-    draw_texture_center, mouse_pos, screen_mouse_pos,
+    draw_texture_center, screen_mouse_pos, UVec2SaturatedSub,
 };
+use crate::{hex, screen_size};
 
 pub(crate) fn bottom_ui_height() -> f32 {
     screen_size!(100.0, 150.0, 175.0)
@@ -55,6 +58,9 @@ pub(crate) struct Player {
     /// Selected building to place
     #[new(value = "None")]
     pub(crate) selected_new_building: Option<Building>,
+
+    #[new(value = "None")]
+    selected_new_building_pos: Option<UVec2>,
 }
 impl Player {
     pub(crate) fn as_server(&self) -> ServerPlayer {
@@ -108,8 +114,27 @@ impl Player {
     /// Updates placing buildings
     pub(crate) fn update_placing(&mut self) {
         if let Some(selected) = self.selected_new_building {
-            let mp = mouse_pos();
+            let mp = Map::world_to_pos(screen_mouse_pos());
+
+            let padding = 2;
+            let padding_rect = Map::pos_to_rect(
+                mp.saturated_sub(uvec2(padding, padding) * 2),
+                selected.size().0 + padding * 2,
+                selected.size().1 + padding * 2,
+            );
+            padding_rect.draw(hex!("#ff0000", 128));
+
+            let mp = Map::pos_to_world(mp);
             draw_texture_center(selected.texture().texture(), mp.x, mp.y);
+
+            if is_mouse_button_pressed(MouseButton::Right) {
+                self.selected_new_building = None;
+                self.selected_new_building_pos = None;
+            }
+
+            // if is_key_pressed(MouseButton::Left) {
+
+            // }
         }
     }
 
@@ -129,6 +154,7 @@ impl Player {
     pub(crate) fn draw_ui(&mut self) {
         /* ------------------------------- Bottom part ------------------------------ */
         let general_info_width = screen_size!(128.0, 192.0, 256.0);
+        let margin = 4.0;
 
         // Info
         draw_rel_rectangle(
@@ -140,7 +166,6 @@ impl Player {
         );
 
         for (i, (ore, amt)) in self.ores.iter().enumerate() {
-            let margin = 4.0;
             let icon = ore.icon().texture();
 
             draw_rel_texture_ex(
@@ -178,15 +203,34 @@ impl Player {
         );
 
         // Selected worker info and commands
+        let x = general_info_width + selected_worker_width;
+        let y = screen_height() - bottom_ui_height();
         draw_rel_rectangle(
-            general_info_width + selected_worker_width,
-            screen_height() - bottom_ui_height(),
+            x,
+            y,
             screen_width() - general_info_width - selected_worker_width,
             bottom_ui_height(),
             GREEN,
         );
 
-        for building in Building::iter() {}
+        for building in Building::iter() {
+            let texture = building.icon().texture();
+            let rect =
+                CollisionRect::new_rel(x + margin, y + margin, texture.width(), texture.height());
+            draw_texture(texture, rect.left(), rect.top(), WHITE);
+
+            if is_mouse_button_pressed(MouseButton::Left) && rect.touches_point(&screen_mouse_pos())
+            {
+                if self.selected_new_building == Some(building) {
+                    self.selected_new_building = None;
+                    self.selected_new_building_pos = None;
+                    return;
+                }
+
+                self.selected_new_building = Some(building);
+                self.selected_new_building_pos = Some(Map::world_to_pos(screen_mouse_pos()));
+            }
+        }
     }
 
     pub(crate) fn draw(&mut self) {

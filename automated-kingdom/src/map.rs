@@ -237,7 +237,7 @@ fn string_to_map(string: &'static str) -> (Vec<Vec<Tile>>, usize, usize) {
             match c {
                 '#' => row.push(Tile::Wall),
                 '.' => row.push(Tile::Air),
-                _ => panic!("Invalid character in map string '{}'", c),
+                _ => panic!("Invalid character in map string '{c}'"),
             }
         }
         map.push(row);

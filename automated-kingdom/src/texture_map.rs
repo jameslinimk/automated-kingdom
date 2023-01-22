@@ -33,7 +33,7 @@ impl TextureMap for Texture {
             .lock()
             .unwrap()
             .get(self)
-            .unwrap_or_else(|| panic!("Texture not found for \"{:?}\"", self))
+            .unwrap_or_else(|| panic!("Texture not found for \"{self:?}\""))
     }
 }
 

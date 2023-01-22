@@ -15,7 +15,7 @@ pub(crate) trait BuildingTrait {
     fn pos(&self) -> UVec2;
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
 pub(crate) struct House {
     pos: UVec2,
 }
@@ -26,7 +26,7 @@ impl BuildingTrait for House {
 }
 
 #[enum_dispatch(BuildingTrait)]
-#[derive(Clone, Copy, Assoc, EnumIter)]
+#[derive(Clone, Copy, Assoc, PartialEq, Eq, EnumIter)]
 #[func(pub(crate) fn texture(&self) -> Texture)]
 #[func(pub(crate) fn icon(&self) -> Texture)]
 #[func(pub(crate) fn cost(&self) -> FxHashMap<Ore, u32>)]
