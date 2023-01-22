@@ -1,4 +1,4 @@
-pub mod camera;
-pub mod ore_patch;
-pub mod player;
-pub mod worker;
+pub(crate) mod camera;
+pub(crate) mod ore_patch;
+pub(crate) mod player;
+pub(crate) mod worker;

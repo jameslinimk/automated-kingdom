@@ -5,18 +5,18 @@ use macroquad::window::{next_frame, Conf};
 use crate::config::config;
 use crate::game::{game, Game};
 
-pub mod astar;
-pub mod conf;
-pub mod config;
-pub mod game;
-pub mod geometry;
-pub mod map;
-pub mod map_gen;
-pub mod math;
-pub mod objects;
-pub mod spritesheet;
-pub mod texture_map;
-pub mod util;
+pub(crate) mod astar;
+pub(crate) mod conf;
+pub(crate) mod config;
+pub(crate) mod game;
+pub(crate) mod geometry;
+pub(crate) mod map;
+pub(crate) mod map_gen;
+pub(crate) mod math;
+pub(crate) mod objects;
+pub(crate) mod spritesheet;
+pub(crate) mod texture_map;
+pub(crate) mod util;
 
 /// Base config for the game
 fn base_cfg() -> Conf {

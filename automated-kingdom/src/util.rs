@@ -69,7 +69,7 @@ macro_rules! hashset {
 }
 
 /// Trait to fix `f32.signum` not doing `0.0`
-pub trait FloatSignum {
+pub(crate) trait FloatSignum {
     fn sign(&self) -> f32;
     fn sign_i8(&self) -> i8;
 }
@@ -110,7 +110,7 @@ macro_rules! derive_id_eq {
 }
 
 /// Draw text centered at a given position
-pub fn draw_text_center(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
+pub(crate) fn draw_text_center(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
     let measurements = measure_text(text, Some(*SILVER_FONT), font_size as u16, 1.0);
     draw_text_ex(
         text,
@@ -127,7 +127,7 @@ pub fn draw_text_center(text: &str, x: f32, y: f32, font_size: f32, color: Color
 }
 
 /// Draw text at given top left position
-pub fn draw_text_top_left(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
+pub(crate) fn draw_text_top_left(text: &str, x: f32, y: f32, font_size: f32, color: Color) {
     draw_text_ex(
         text,
         x,
@@ -143,7 +143,12 @@ pub fn draw_text_top_left(text: &str, x: f32, y: f32, font_size: f32, color: Col
 }
 
 /// Draws text within a given rectangle, wrapping the text to fit the rectangle
-pub fn draw_text_within_rect(text: &str, rect: &CollisionRect, font_size: f32, color: Color) {
+pub(crate) fn draw_text_within_rect(
+    text: &str,
+    rect: &CollisionRect,
+    font_size: f32,
+    color: Color,
+) {
     let mut x = rect.left();
     let mut y = rect.top();
 
@@ -164,32 +169,32 @@ pub fn draw_text_within_rect(text: &str, rect: &CollisionRect, font_size: f32, c
 }
 
 /// Returns a position relative to the screen
-pub fn relative_pos(pos: Vec2) -> Vec2 {
+pub(crate) fn relative_pos(pos: Vec2) -> Vec2 {
     game().camera.camera.screen_to_world(pos)
 }
 
 /// Returns the x position relative to the screen
-pub fn relative_x(x: f32) -> f32 {
+pub(crate) fn relative_x(x: f32) -> f32 {
     game().camera.camera.screen_to_world(vec2(x, 0.0)).x
 }
 
 /// Returns the y position relative to the screen
-pub fn relative_y(y: f32) -> f32 {
+pub(crate) fn relative_y(y: f32) -> f32 {
     game().camera.camera.screen_to_world(vec2(0.0, y)).y
 }
 
 /// Returns the given value without zoom
-pub fn relative_zoom(v: f32) -> f32 {
+pub(crate) fn relative_zoom(v: f32) -> f32 {
     v / game().camera.zoom
 }
 
 /// Returns the given [Vec2] without zoom
-pub fn relative_zoom_vec2(v: Vec2) -> Vec2 {
+pub(crate) fn relative_zoom_vec2(v: Vec2) -> Vec2 {
     v / game().camera.zoom
 }
 
 /// Draw a rectangle relative to the screen
-pub fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
+pub(crate) fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
     draw_rectangle(
         relative_x(x),
         relative_y(y),
@@ -200,7 +205,14 @@ pub fn draw_rel_rectangle(x: f32, y: f32, w: f32, h: f32, color: Color) {
 }
 
 /// Draw rectangle lines relative to the screen
-pub fn draw_rel_rectangle_lines(x: f32, y: f32, w: f32, h: f32, thickness: f32, color: Color) {
+pub(crate) fn draw_rel_rectangle_lines(
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    thickness: f32,
+    color: Color,
+) {
     draw_rectangle_lines(
         relative_x(x),
         relative_y(y),
@@ -212,7 +224,7 @@ pub fn draw_rel_rectangle_lines(x: f32, y: f32, w: f32, h: f32, thickness: f32, 
 }
 
 /// Draw a texture relative to the screen with extra params
-pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
+pub(crate) fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
     draw_texture_ex(
         texture,
         relative_x(x),
@@ -226,7 +238,7 @@ pub fn draw_rel_texture_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextu
 }
 
 /// Draw a texture relative to the screen
-pub fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
+pub(crate) fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
     draw_texture(
         texture,
         x - texture.width() / 2.0,
@@ -236,7 +248,12 @@ pub fn draw_texture_center(texture: Texture2D, x: f32, y: f32) {
 }
 
 /// Draw a texture relative to the screen with extra params
-pub fn draw_texture_center_ex(texture: Texture2D, x: f32, y: f32, params: DrawTextureParams) {
+pub(crate) fn draw_texture_center_ex(
+    texture: Texture2D,
+    x: f32,
+    y: f32,
+    params: DrawTextureParams,
+) {
     let width;
     let height;
 
@@ -252,12 +269,12 @@ pub fn draw_texture_center_ex(texture: Texture2D, x: f32, y: f32, params: DrawTe
 }
 
 /// Returns the mouse position relative to the screen
-pub fn screen_mouse_pos() -> Vec2 {
+pub(crate) fn screen_mouse_pos() -> Vec2 {
     relative_pos(mouse_position().into())
 }
 
 /// Returns the mouse pos as a [Vec2]
-pub fn mouse_pos() -> Vec2 {
+pub(crate) fn mouse_pos() -> Vec2 {
     mouse_position().into()
 }
 
@@ -293,7 +310,7 @@ macro_rules! ternary {
 /// 1_000_000     => "1.00m"
 /// 1_000_000_000 => "1.00b"
 /// ```
-pub fn abbreviate_number(num: u32) -> String {
+pub(crate) fn abbreviate_number(num: u32) -> String {
     let num_string = num.to_string();
     let mut output = String::new();
 

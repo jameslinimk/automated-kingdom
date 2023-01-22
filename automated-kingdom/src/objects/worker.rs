@@ -20,29 +20,29 @@ use crate::texture_map::TextureMap;
 use crate::util::{draw_text_center, draw_texture_center_ex, FloatSignum};
 use crate::{derive_id_eq, hashmap};
 
-pub static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
-pub type IdType = u16;
+pub(crate) static GLOBAL_ID: AtomicU16 = AtomicU16::new(0);
+pub(crate) type IdType = u16;
 
 /// Returns a new id for the global id system
 #[inline]
-pub fn new_id() -> IdType {
+pub(crate) fn new_id() -> IdType {
     GLOBAL_ID.fetch_add(1, Ordering::Relaxed)
 }
 
 /// Returns an iterator over all workers in the game
 #[inline]
-pub fn workers_iter() -> impl Iterator<Item = &'static Worker> {
+pub(crate) fn workers_iter() -> impl Iterator<Item = &'static Worker> {
     game().players.iter().flat_map(|p| p.workers.iter())
 }
 
 /// Returns a mutable iterator over all workers in the game
 #[inline]
-pub fn workers_iter_mut() -> impl Iterator<Item = &'static mut Worker> {
+pub(crate) fn workers_iter_mut() -> impl Iterator<Item = &'static mut Worker> {
     game().players.iter_mut().flat_map(|p| p.workers.iter_mut())
 }
 
 #[derive(Hash, Clone, Copy, Debug, PartialEq, Eq)]
-pub enum WalkDirection {
+pub(crate) enum WalkDirection {
     Up,
     Down,
     Left,
@@ -91,35 +91,35 @@ macro_rules! direction_sheets {
 
 /// A worker that can be controlled by the player and can build structures
 #[derive(Debug, Clone, new)]
-pub struct Worker {
+pub(crate) struct Worker {
     #[new(value = "new_id()")]
-    pub id: IdType,
+    pub(crate) id: IdType,
 
     #[new(value = "10")]
-    pub max_hp: u16,
+    pub(crate) max_hp: u16,
 
     #[new(value = "10")]
-    pub hp: u16,
+    pub(crate) hp: u16,
 
     #[new(value = "CollisionRect::new(100.0, 100.0, SQUARE_SIZE, SQUARE_SIZE)")]
-    pub rect: CollisionRect,
+    pub(crate) rect: CollisionRect,
 
     #[new(value = "None")]
-    pub path: Option<Vec<Vec2>>,
+    pub(crate) path: Option<Vec<Vec2>>,
 
     /// The index of the ore the worker is currently mining in the [Map]'s ore list
     #[new(value = "None")]
-    pub ore: Option<usize>,
+    pub(crate) ore: Option<usize>,
 
     /// Whether the worker is currently mining
     #[new(value = "false")]
-    pub mining: bool,
+    pub(crate) mining: bool,
 
     #[new(value = "200.0")]
-    pub speed: f32,
+    pub(crate) speed: f32,
 
     #[new(value = "WalkDirection::Up")]
-    pub direction: WalkDirection,
+    pub(crate) direction: WalkDirection,
 
     #[new(value = "0.0")]
     hspd: f32,
@@ -128,9 +128,9 @@ pub struct Worker {
     vspd: f32,
 
     #[new(value = "None")]
-    pub moving_away_from: Option<IdType>,
+    pub(crate) moving_away_from: Option<IdType>,
 
-    pub color: ServerColor,
+    pub(crate) color: ServerColor,
 
     #[new(value = "direction_sheets!(color, Worker, Walk)")]
     walk_spritesheets: FxHashMap<WalkDirection, SpriteSheet>,
@@ -142,7 +142,7 @@ pub struct Worker {
 derive_id_eq!(Worker);
 
 impl Worker {
-    pub fn as_server(&self) -> ServerWorker {
+    pub(crate) fn as_server(&self) -> ServerWorker {
         let sprite = self.spritesheet()[&self.direction].as_server();
         ServerWorker {
             pos: self.rect.top_left().into(),
@@ -235,7 +235,7 @@ impl Worker {
     }
 
     /// Make sure the worker doesn't collide with other workers or walls, if it does, slowly move it out of the way. Changes `hspd` and `vspd`
-    pub fn update_collision(&mut self) {
+    pub(crate) fn update_collision(&mut self) {
         for worker in
             workers_iter().filter(|w| w.id != self.id && w.moving_away_from != Some(self.id))
         {
@@ -297,7 +297,7 @@ impl Worker {
     }
 
     /// Updates mining ore
-    pub fn update_ore(&mut self) {
+    pub(crate) fn update_ore(&mut self) {
         self.mining = false;
         if let Some(i) = self.ore {
             let ore = &mut game().map.ores[i];
@@ -347,7 +347,7 @@ impl Worker {
         }
     }
 
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         // Reset velocities
         self.hspd = 0.0;
         self.vspd = 0.0;
@@ -367,12 +367,12 @@ impl Worker {
     }
 
     /// Sets the path to the given goal position on the [crate::map::Map]
-    pub fn set_path(&mut self, goal: UVec2) {
+    pub(crate) fn set_path(&mut self, goal: UVec2) {
         self.path = astar(Map::world_to_pos(self.rect.top_left()), goal);
     }
 
     /// Draw the worker to the screen, and optionally highlight it. Also draws the path-line and time
-    pub fn draw(&self, highlight: bool) {
+    pub(crate) fn draw(&self, highlight: bool) {
         self.sprite().draw(self.rect.left(), self.rect.top());
         if highlight {
             self.rect.draw_lines(2.5, color_u8!(255, 255, 255, 200));

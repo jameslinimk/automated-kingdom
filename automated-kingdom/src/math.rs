@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use macroquad::prelude::{vec2, UVec2, Vec2};
 
 /// Returns the radians between two [Vec2]'s
-pub fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
+pub(crate) fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
     let x_dist = dest.x - origin.x;
     let y_dist = dest.y - origin.y;
 
@@ -13,7 +13,7 @@ pub fn angle(origin: &Vec2, dest: &Vec2) -> f32 {
 }
 
 /// Gets the opposite radians between two [Vec2]'s
-pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
+pub(crate) fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
     let x_dist = origin.x - dest.x;
     let y_dist = origin.y - dest.y;
 
@@ -21,7 +21,7 @@ pub fn opposite_angle(origin: &Vec2, dest: &Vec2) -> f32 {
 }
 
 /// Finds distance between 2 [Vec2]'s
-pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
+pub(crate) fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
     let x_dist = p2.x - p1.x;
     let y_dist = p2.y - p1.y;
 
@@ -29,7 +29,7 @@ pub fn distance(p1: &Vec2, p2: &Vec2) -> f32 {
 }
 
 /// Finds distance between 2 [UVec2]'s
-pub fn u_distance(p1: &UVec2, p2: &UVec2) -> f32 {
+pub(crate) fn u_distance(p1: &UVec2, p2: &UVec2) -> f32 {
     let x_dist = p2.x as f32 - p1.x as f32;
     let y_dist = p2.y as f32 - p1.y as f32;
 
@@ -37,7 +37,7 @@ pub fn u_distance(p1: &UVec2, p2: &UVec2) -> f32 {
 }
 
 /// Projects [Vec2] at certain radians and distance
-pub fn project(origin: &Vec2, radians: f32, distance: f32) -> Vec2 {
+pub(crate) fn project(origin: &Vec2, radians: f32, distance: f32) -> Vec2 {
     vec2(
         origin.x + (radians.cos() * distance),
         origin.y - (radians.sin() * distance),
@@ -45,6 +45,6 @@ pub fn project(origin: &Vec2, radians: f32, distance: f32) -> Vec2 {
 }
 
 /// Converts a value from `0.0` - `1.0` to an ease-in-out curve (sign wave)
-pub fn ease_in_out(x: f32) -> f32 {
+pub(crate) fn ease_in_out(x: f32) -> f32 {
     (-((PI * x).cos() - 1.0) / 2.0).clamp(0.0, 1.0)
 }

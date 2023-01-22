@@ -79,21 +79,21 @@ const CONFIG_PATH: &str = "./automated-kingdom/config.ron";
 const CONFIG_PATH: &str = "./config.ron";
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, new)]
-pub struct Config {
+pub(crate) struct Config {
     /// Desired window height
     #[new(value = "1280")]
-    pub window_height: i32,
+    pub(crate) window_height: i32,
 
     /// Desired window width
     #[new(value = "1280")]
-    pub window_width: i32,
+    pub(crate) window_width: i32,
 
     /// Desired fps limit
     #[new(value = "60")]
-    pub fps_limit: u16,
+    pub(crate) fps_limit: u16,
 }
 impl Config {
-    pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub(crate) fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
         let str = to_string_pretty(self, PrettyConfig::new().struct_names(true))?;
         write_to_path(
             CONFIG_PATH,
@@ -103,7 +103,7 @@ impl Config {
         Ok(())
     }
 
-    pub fn load() -> Config {
+    pub(crate) fn load() -> Config {
         let str = get_path(CONFIG_PATH);
         if let Some(str) = str {
             if let Ok(config) = ron::from_str(&str) {
@@ -119,7 +119,7 @@ impl Config {
 
 static mut CONFIG: Option<Config> = None;
 /// Returns the global [Config] object as a mutable reference
-pub fn config() -> &'static mut Config {
+pub(crate) fn config() -> &'static mut Config {
     unsafe {
         if CONFIG.is_none() {
             CONFIG = Some(Config::load());

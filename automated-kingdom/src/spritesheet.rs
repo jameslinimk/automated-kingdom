@@ -7,11 +7,11 @@ use macroquad::time::get_time;
 use crate::texture_map::TextureMap;
 
 #[derive(Debug, Clone, Copy, new)]
-pub struct SpriteSheet {
+pub(crate) struct SpriteSheet {
     /// Texture containing all frames of the sprite sheet
-    pub texture: Texture,
+    pub(crate) texture: Texture,
     /// Duration of a single frame in seconds
-    pub frame_duration: f32,
+    pub(crate) frame_duration: f32,
 
     #[new(value = "f64::MIN")]
     last_frame: f64,
@@ -29,17 +29,17 @@ pub struct SpriteSheet {
 }
 impl SpriteSheet {
     /// Creates a new `SpriteSheet` from a given fps
-    pub fn new_fps(texture: Texture, fps: f32) -> SpriteSheet {
+    pub(crate) fn new_fps(texture: Texture, fps: f32) -> SpriteSheet {
         SpriteSheet::new(texture, 1.0 / fps)
     }
 
     /// Creates a new `SpriteSheet` with `12.0` fps
-    pub fn new_12(texture: Texture) -> SpriteSheet {
+    pub(crate) fn new_12(texture: Texture) -> SpriteSheet {
         SpriteSheet::new_fps(texture, 12.0)
     }
 
     /// Will draw the current frame of the sprite sheet at given top-left position
-    pub fn draw(&self, x: f32, y: f32) {
+    pub(crate) fn draw(&self, x: f32, y: f32) {
         let w = self.base_texture.width() / self.frames as f32;
         let h = self.base_texture.height();
 
@@ -57,7 +57,7 @@ impl SpriteSheet {
     }
 
     /// Converts `Self` to a [Sprite]
-    pub fn as_server(&self) -> Sprite {
+    pub(crate) fn as_server(&self) -> Sprite {
         Sprite::SpriteSheet {
             texture: self.texture,
             frames: self.frames,
@@ -66,7 +66,7 @@ impl SpriteSheet {
     }
 
     /// Updates the current frame of the sprite sheet, call every frame
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         if get_time() > self.last_frame + self.frame_duration as f64 {
             self.current_frame += 1;
             if self.current_frame >= self.frames {
@@ -77,17 +77,17 @@ impl SpriteSheet {
     }
 
     /// Pause the spritesheet
-    pub fn pause(&mut self) {
+    pub(crate) fn pause(&mut self) {
         self.last_frame = f64::MAX;
     }
 
     /// Check if the spritesheet is paused
-    pub fn paused(&self) -> bool {
+    pub(crate) fn paused(&self) -> bool {
         self.last_frame == f64::MAX
     }
 
     /// Resume the spritesheet if paused
-    pub fn resume(&mut self) {
+    pub(crate) fn resume(&mut self) {
         if self.last_frame == f64::MAX {
             self.last_frame = get_time();
         }

@@ -10,7 +10,7 @@ use crate::texture_map::load_texture;
 
 static mut GAME: Option<Game> = None;
 /// Returns the global [Game] object as a mutable reference
-pub fn game() -> &'static mut Game {
+pub(crate) fn game() -> &'static mut Game {
     unsafe {
         if GAME.is_none() {
             GAME = Some(Game::new());
@@ -20,22 +20,22 @@ pub fn game() -> &'static mut Game {
 }
 
 #[derive(new)]
-pub struct Game {
+pub(crate) struct Game {
     #[new(value = "vec![Player::new()]")]
-    pub players: Vec<Player>,
+    pub(crate) players: Vec<Player>,
 
     #[new(value = "0")]
-    pub main_player: usize,
+    pub(crate) main_player: usize,
 
     #[new(value = "Camera::new()")]
-    pub camera: Camera,
+    pub(crate) camera: Camera,
 
     #[new(value = "Map::new()")]
-    pub map: Map,
+    pub(crate) map: Map,
 }
 
 impl Game {
-    pub fn preload() {
+    pub(crate) fn preload() {
         let _ = *SILVER_FONT;
 
         /// Loads textures from a list of key-value pairs
@@ -63,11 +63,11 @@ impl Game {
         );
     }
 
-    pub fn init(&mut self) {
+    pub(crate) fn init(&mut self) {
         self.map.set_camera_bounds();
     }
 
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         self.map.update();
         self.players[self.main_player].update();
         self.camera.update();
@@ -76,13 +76,13 @@ impl Game {
         }
     }
 
-    pub fn draw(&mut self) {
+    pub(crate) fn draw(&mut self) {
         self.map.draw();
         self.players[self.main_player].draw();
         self.map.draw_minimap();
     }
 
-    pub fn player(&self, color: Color) -> &Player {
+    pub(crate) fn player(&self, color: Color) -> &Player {
         for player in &self.players {
             if player.color == color {
                 return player;
@@ -91,7 +91,7 @@ impl Game {
         panic!("Player not found");
     }
 
-    pub fn player_mut(&mut self, color: Color) -> &mut Player {
+    pub(crate) fn player_mut(&mut self, color: Color) -> &mut Player {
         for player in &mut self.players {
             if player.color == color {
                 return player;
@@ -100,11 +100,11 @@ impl Game {
         panic!("Player not found");
     }
 
-    pub fn main_player(&self) -> &Player {
+    pub(crate) fn main_player(&self) -> &Player {
         &self.players[self.main_player]
     }
 
-    pub fn main_player_mut(&mut self) -> &mut Player {
+    pub(crate) fn main_player_mut(&mut self) -> &mut Player {
         &mut self.players[self.main_player]
     }
 }

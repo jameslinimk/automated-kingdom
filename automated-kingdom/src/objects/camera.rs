@@ -14,25 +14,25 @@ use crate::objects::player::bottom_ui_height;
 
 /// Info about the a camera shake, sent to the camera to start a shake
 #[derive(Debug, Clone, Copy)]
-pub struct ShakeConfig {
-    pub duration: f32,
-    pub intensity: f32,
+pub(crate) struct ShakeConfig {
+    pub(crate) duration: f32,
+    pub(crate) intensity: f32,
 }
 
 /// The camera object, used to manually control the camera or to pan to a target
 #[derive(new)]
-pub struct Camera {
+pub(crate) struct Camera {
     /// Actual [Camera2D] object sent to Macroquad
     #[new(value = "Camera2D {
         zoom: vec2(2.0 / screen_width(), -2.0 / screen_height()),
         target: vec2(screen_width() / 2.0, screen_height() / 2.0),
         ..Default::default()
     }")]
-    pub camera: Camera2D,
+    pub(crate) camera: Camera2D,
 
     /// The zoom of the camera (1.0 is default)
     #[new(value = "1.0")]
-    pub zoom: f32,
+    pub(crate) zoom: f32,
 
     /// Set's the target of the camera, `None` if no target is active
     /// - If active, the camera will pan to the target and will lock manual movement
@@ -45,7 +45,7 @@ pub struct Camera {
 
     /// The current offset of the camera shake
     #[new(value = "vec2(0.0, 0.0)")]
-    pub shake_offset: Vec2,
+    pub(crate) shake_offset: Vec2,
 
     /// The time the current shake started
     #[new(value = "0.0")]
@@ -53,15 +53,15 @@ pub struct Camera {
 
     /// The speed of the camera when in manual mode
     #[new(value = "500.0")]
-    pub speed: f32,
+    pub(crate) speed: f32,
 
     /// Bottom right of the camera bounds, top left is always `0,0`
     #[new(value = "None")]
-    pub bounds: Option<Vec2>,
+    pub(crate) bounds: Option<Vec2>,
 }
 impl Camera {
     /// Updates the camera, should be called every frame
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         /* --------------------------------- Zooming -------------------------------- */
         if is_key_pressed(KeyCode::Equal) {
             self.increase_zoom(0.2);
@@ -150,34 +150,34 @@ impl Camera {
     }
 
     /// Sets the camera zoom, clamped between 0.5 and 2.0
-    pub fn set_zoom(&mut self, new_zoom: f32) {
+    pub(crate) fn set_zoom(&mut self, new_zoom: f32) {
         self.zoom = new_zoom.clamp(0.5, 2.0);
         self.camera.zoom = vec2(2.0 / screen_width(), -2.0 / screen_height()) * self.zoom;
     }
 
     /// Increases the camera zoom by the given amount
-    pub fn increase_zoom(&mut self, increase: f32) {
+    pub(crate) fn increase_zoom(&mut self, increase: f32) {
         self.set_zoom(self.zoom + increase)
     }
 
     /// Sets the camera shake, will override any current shake
-    pub fn set_shake(&mut self, shake: ShakeConfig) {
+    pub(crate) fn set_shake(&mut self, shake: ShakeConfig) {
         self.shake = Option::from(shake);
         self.shake_start = get_time();
     }
 
     /// Removes the current camera shake
-    pub fn remove_shake(&mut self) {
+    pub(crate) fn remove_shake(&mut self) {
         self.shake = None;
     }
 
     /// Sets the camera target, will override any current target
-    pub fn set_target(&mut self, target: Vec2) {
+    pub(crate) fn set_target(&mut self, target: Vec2) {
         self.target = Some(target);
     }
 
     /// Removes the current camera target
-    pub fn remove_target(&mut self) {
+    pub(crate) fn remove_target(&mut self) {
         self.target = None;
     }
 }

@@ -74,7 +74,7 @@ fn neighbors(point: UVec2, map: &Map) -> Vec<UVec2> {
 }
 
 /// Returns a path from start to goal using the A* algorithm, or `None` if no path is found
-pub fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
+pub(crate) fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
     let mut parents = hashmap! {};
     let mut costs = hashmap! {};
     let mut priority_queue = PriorityQueue::<UVec2, u32, BuildHasherDefault<FxHasher>>::default();
@@ -119,7 +119,7 @@ pub fn astar(start: UVec2, goal: UVec2) -> Option<Vec<Vec2>> {
 }
 
 /// Calculates the time it takes to travel along a path
-pub fn path_time(current_pos: &Vec2, speed: f32, path: &[Vec2]) -> f32 {
+pub(crate) fn path_time(current_pos: &Vec2, speed: f32, path: &[Vec2]) -> f32 {
     let mut time = 0.0;
     if !path.is_empty() {
         let mut prev = current_pos;

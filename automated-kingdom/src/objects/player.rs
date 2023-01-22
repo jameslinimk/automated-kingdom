@@ -14,25 +14,25 @@ use crate::screen_size;
 use crate::texture_map::TextureMap;
 use crate::util::{abbreviate_number, draw_rel_rectangle, draw_rel_texture_ex, screen_mouse_pos};
 
-pub fn bottom_ui_height() -> f32 {
+pub(crate) fn bottom_ui_height() -> f32 {
     screen_size!(100.0, 150.0, 175.0)
 }
 
 #[derive(Clone, new)]
-pub struct Player {
+pub(crate) struct Player {
     #[new(
         value = "vec![Worker::new(Color::Blue), Worker::new(Color::Blue), Worker::new(Color::Blue), Worker::new(Color::Blue)]"
     )]
-    pub workers: Vec<Worker>,
+    pub(crate) workers: Vec<Worker>,
 
     #[new(value = "None")]
-    pub selected_worker: Option<usize>,
+    pub(crate) selected_worker: Option<usize>,
 
     #[new(value = "Color::Blue")]
-    pub color: Color,
+    pub(crate) color: Color,
 
     #[new(value = "0")]
-    pub uuid: u64,
+    pub(crate) uuid: u64,
 
     #[new(value = "{
         let mut temp = FxHashMap::default();
@@ -41,10 +41,10 @@ pub struct Player {
         }
         temp
     }")]
-    pub ores: FxHashMap<Ore, u32>,
+    pub(crate) ores: FxHashMap<Ore, u32>,
 }
 impl Player {
-    pub fn as_server(&self) -> ServerPlayer {
+    pub(crate) fn as_server(&self) -> ServerPlayer {
         ServerPlayer {
             uuid: self.uuid,
             ping: 0,
@@ -57,7 +57,7 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         if is_mouse_button_pressed(MouseButton::Left) {
             for (i, worker) in self.workers.iter().enumerate() {
                 if worker.rect.touches_point(&screen_mouse_pos()) {
@@ -97,7 +97,7 @@ impl Player {
         None
     }
 
-    pub fn draw_ui(&mut self) {
+    pub(crate) fn draw_ui(&mut self) {
         /* ------------------------------- Bottom part ------------------------------ */
         let general_info_width = screen_size!(128.0, 192.0, 256.0);
 
@@ -147,7 +147,7 @@ impl Player {
         );
     }
 
-    pub fn draw(&mut self) {
+    pub(crate) fn draw(&mut self) {
         for (i, worker) in self.workers.iter().enumerate() {
             worker.draw(self.selected_worker == Some(i));
         }

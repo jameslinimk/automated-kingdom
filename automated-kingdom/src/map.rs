@@ -17,30 +17,30 @@ use crate::util::{draw_rel_rectangle, draw_rel_texture_ex, mouse_pos, screen_mou
 use crate::{hashset, hex, ternary};
 
 #[derive(PartialEq, Clone, Debug, new)]
-pub struct Map {
+pub(crate) struct Map {
     #[new(value = "string_to_map(TEST_MAP).0")]
-    pub base_map: Vec<Vec<Tile>>,
+    pub(crate) base_map: Vec<Vec<Tile>>,
 
     #[new(value = "hashset![]")]
-    pub tiles: FxHashSet<UVec2>,
+    pub(crate) tiles: FxHashSet<UVec2>,
 
     #[new(value = "vec![
         OrePatch::new(uvec2(5, 5), Ore::Gold, 1000)
     ]")]
-    pub ores: Vec<OrePatch>,
+    pub(crate) ores: Vec<OrePatch>,
 
     #[new(value = "string_to_map(TEST_MAP).1")]
-    pub width: usize,
+    pub(crate) width: usize,
 
     #[new(value = "string_to_map(TEST_MAP).2")]
-    pub height: usize,
+    pub(crate) height: usize,
 }
 impl Map {
-    pub fn get(&self, pos: UVec2) -> Tile {
+    pub(crate) fn get(&self, pos: UVec2) -> Tile {
         self.base_map[pos.y as usize][pos.x as usize]
     }
 
-    pub fn draw(&self) {
+    pub(crate) fn draw(&self) {
         for (y, row) in self.base_map.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 let world_pos = Map::pos_to_world(uvec2(x as u32, y as u32));
@@ -58,7 +58,7 @@ impl Map {
         }
     }
 
-    pub fn draw_minimap(&self) {
+    pub(crate) fn draw_minimap(&self) {
         let divisor = 10.0;
         let new_square_size = SQUARE_SIZE / divisor;
         let margin = 8.0;
@@ -165,7 +165,7 @@ impl Map {
     }
 
     /// Updates the [Map]'s tiles based on the current [OrePatch]'s and others
-    pub fn update(&mut self) {
+    pub(crate) fn update(&mut self) {
         for ore in self.ores.iter() {
             for x in ore.pos.x..ore.pos.x + ore.width {
                 for y in ore.pos.y..ore.pos.y + ore.height {
@@ -176,7 +176,7 @@ impl Map {
     }
 
     /// Updates the camera bounds based on the current base map size
-    pub fn set_camera_bounds(&self) {
+    pub(crate) fn set_camera_bounds(&self) {
         game().camera.bounds = Some(vec2(
             self.width as f32 * SQUARE_SIZE,
             self.height as f32 * SQUARE_SIZE,
@@ -184,7 +184,7 @@ impl Map {
     }
 
     /// Converts a location on a [Map] to a [CollisionRect] with the given width and height
-    pub fn pos_to_rect(pos: UVec2, width: u32, height: u32) -> CollisionRect {
+    pub(crate) fn pos_to_rect(pos: UVec2, width: u32, height: u32) -> CollisionRect {
         let world_pos = Map::pos_to_world(pos);
         CollisionRect::new_vec2(
             world_pos,
@@ -194,12 +194,12 @@ impl Map {
     }
 
     /// Inverse of [world_to_pos]. Converts a location on a [Map] to a world position
-    pub fn pos_to_world(pos: UVec2) -> Vec2 {
+    pub(crate) fn pos_to_world(pos: UVec2) -> Vec2 {
         vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)
     }
 
     /// Inverse of [pos_to_world], converts a world position to a location on a [Map]
-    pub fn world_to_pos(pos: Vec2) -> UVec2 {
+    pub(crate) fn world_to_pos(pos: Vec2) -> UVec2 {
         uvec2((pos.x / SQUARE_SIZE) as u32, (pos.y / SQUARE_SIZE) as u32)
     }
 }

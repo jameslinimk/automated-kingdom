@@ -14,14 +14,14 @@ lazy_static! {
 }
 
 /// Adds a texture to the texture map
-pub fn load_texture(name: Texture, bytes: &'static [u8]) {
+pub(crate) fn load_texture(name: Texture, bytes: &'static [u8]) {
     let texture = Texture2D::from_file_with_format(bytes, Some(ImageFormat::Png));
     texture.set_filter(FilterMode::Nearest);
     TEXTURE_MAP.lock().unwrap().insert(name, texture);
 }
 
 /// trait for getting a texture from the [TEXTURE_MAP]
-pub trait TextureMap {
+pub(crate) trait TextureMap {
     fn texture(&self) -> Texture2D;
 }
 impl TextureMap for Texture {
@@ -36,7 +36,7 @@ impl TextureMap for Texture {
 }
 
 /// Trait for drawing [Sprite]'s sent from server in the game
-pub trait DrawSprite {
+pub(crate) trait DrawSprite {
     fn draw(&self, x: f32, y: f32);
 }
 impl DrawSprite for Sprite {
