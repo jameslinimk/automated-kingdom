@@ -366,7 +366,9 @@ pub(crate) fn abbreviate_number(num: u32) -> String {
     output
 }
 
+/// Trait that allows you to subtract two UVec2s without underflow, instead it will return `0`
 pub(crate) trait UVec2SaturatedSub {
+    /// Subtracts two UVec2s without underflow, instead it will return `0`
     fn saturated_sub(self, other: Self) -> Self;
 }
 
