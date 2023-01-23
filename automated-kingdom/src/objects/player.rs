@@ -114,27 +114,31 @@ impl Player {
     /// Updates placing buildings
     pub(crate) fn update_placing(&mut self) {
         if let Some(selected) = self.selected_new_building {
+            let (width, height) = selected.size();
+
             let mp = Map::world_to_pos(screen_mouse_pos());
 
             let padding = 2;
             let padding_rect = Map::pos_to_rect(
                 mp.saturated_sub(uvec2(padding, padding) * 2),
-                selected.size().0 + padding * 2,
-                selected.size().1 + padding * 2,
+                width + padding * 2,
+                height + padding * 2,
             );
             padding_rect.draw(hex!("#ff0000", 128));
 
-            let mp = Map::pos_to_world(mp);
+            let selected_rect =
+                Map::pos_to_rect(Map::world_to_pos(padding_rect.top_left()), width, height);
+
+            let mp = selected_rect.center();
             draw_texture_center(selected.texture().texture(), mp.x, mp.y);
 
             if is_mouse_button_pressed(MouseButton::Right) {
                 self.selected_new_building = None;
                 self.selected_new_building_pos = None;
+                return;
             }
 
-            // if is_key_pressed(MouseButton::Left) {
-
-            // }
+            if is_mouse_button_pressed(MouseButton::Left) {}
         }
     }
 

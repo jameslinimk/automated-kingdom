@@ -11,6 +11,7 @@ fn write_to_path<T: AsRef<str>>(path: T, data: T) -> Result<(), Box<dyn std::err
 
     let mut file = File::create(path.as_ref())?;
     file.write_all(data.as_ref().as_bytes())?;
+    file.flush()?;
     Ok(())
 }
 
