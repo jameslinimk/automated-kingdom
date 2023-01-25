@@ -240,7 +240,7 @@ pub(crate) fn draw_rel_rectangle_lines(
 }
 
 pub(crate) fn draw_rel_texture(texture: Texture2D, x: f32, y: f32) {
-    draw_texture(texture, relative_x(x), relative_y(y), WHITE);
+    draw_rel_texture_ex(texture, x, y, DrawTextureParams::default());
 }
 
 /// Draw a texture relative to the screen with extra params

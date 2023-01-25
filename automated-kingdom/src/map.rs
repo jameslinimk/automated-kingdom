@@ -217,6 +217,15 @@ impl Map {
         )
     }
 
+    pub(crate) fn center_pos_to_rect(center: UVec2, width: u32, height: u32) -> CollisionRect {
+        let world_pos = Map::pos_to_world(center);
+        CollisionRect::new_center(
+            world_pos,
+            width as f32 * SQUARE_SIZE,
+            height as f32 * SQUARE_SIZE,
+        )
+    }
+
     /// Inverse of [Self::world_to_pos]. Converts a location on a [Map] to a world position
     pub(crate) fn pos_to_world(pos: UVec2) -> Vec2 {
         vec2(pos.x as f32 * SQUARE_SIZE, pos.y as f32 * SQUARE_SIZE)

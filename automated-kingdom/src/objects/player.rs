@@ -1,10 +1,10 @@
 use ak_server::types_game::{Color, ServerPlayer};
 use derive_new::new;
 use macroquad::prelude::{
-    is_mouse_button_pressed, uvec2, MouseButton, UVec2, BLUE, GREEN, RED, WHITE,
+    is_mouse_button_pressed, uvec2, vec2, MouseButton, UVec2, BLUE, GREEN, RED, WHITE,
 };
 use macroquad::text::measure_text;
-use macroquad::texture::{draw_texture, DrawTextureParams};
+use macroquad::texture::{draw_texture, draw_texture_ex, DrawTextureParams};
 use macroquad::window::{screen_height, screen_width};
 use rustc_hash::FxHashMap;
 use strum::IntoEnumIterator;
@@ -18,8 +18,9 @@ use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
 use crate::texture_map::TextureMap;
 use crate::util::{
-    abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture_ex,
-    draw_texture_center, screen_mouse_pos, UVec2SaturatedSub,
+    abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture,
+    draw_rel_texture_ex, draw_texture_center, relative_zoom_vec2, screen_mouse_pos,
+    UVec2SaturatedSub,
 };
 use crate::{hex, screen_size};
 
@@ -127,7 +128,7 @@ impl Player {
             padding_rect.draw(hex!("#ff0000", 128));
 
             let selected_rect =
-                Map::pos_to_rect(Map::world_to_pos(padding_rect.top_left()), width, height);
+                Map::center_pos_to_rect(padding_rect.center().as_uvec2(), width, height);
 
             let mp = selected_rect.center();
             draw_texture_center(selected.texture().texture(), mp.x, mp.y);
@@ -221,7 +222,16 @@ impl Player {
             let texture = building.icon().texture();
             let rect =
                 CollisionRect::new_rel(x + margin, y + margin, texture.width(), texture.height());
-            draw_texture(texture, rect.left(), rect.top(), WHITE);
+            draw_texture_ex(
+                texture,
+                rect.left(),
+                rect.top(),
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(relative_zoom_vec2(vec2(texture.width(), texture.height()))),
+                    ..Default::default()
+                },
+            );
 
             if is_mouse_button_pressed(MouseButton::Left) && rect.touches_point(&screen_mouse_pos())
             {
