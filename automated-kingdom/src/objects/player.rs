@@ -4,7 +4,7 @@ use macroquad::prelude::{
     is_mouse_button_pressed, uvec2, vec2, MouseButton, UVec2, BLUE, GREEN, RED, WHITE,
 };
 use macroquad::text::measure_text;
-use macroquad::texture::{draw_texture, draw_texture_ex, DrawTextureParams};
+use macroquad::texture::{draw_texture_ex, DrawTextureParams};
 use macroquad::window::{screen_height, screen_width};
 use rustc_hash::FxHashMap;
 use strum::IntoEnumIterator;
@@ -18,9 +18,8 @@ use crate::objects::ore_patch::Ore;
 use crate::objects::worker::Worker;
 use crate::texture_map::TextureMap;
 use crate::util::{
-    abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture,
-    draw_rel_texture_ex, draw_texture_center, relative_zoom_vec2, screen_mouse_pos,
-    UVec2SaturatedSub,
+    abbreviate_number, draw_rel_rectangle, draw_rel_text_top_left, draw_rel_texture_ex,
+    draw_texture_center, relative_zoom_vec2, screen_mouse_pos, UVec2SaturatedSub,
 };
 use crate::{hex, screen_size};
 
