@@ -9,7 +9,7 @@ use macroquad::window::{screen_height, screen_width};
 use rustc_hash::FxHashMap;
 use strum::IntoEnumIterator;
 
-use crate::conf::SILVER_FONT;
+use crate::conf::{SILVER_FONT, SQUARE_SIZE};
 use crate::game::game;
 use crate::geometry::CollisionRect;
 use crate::map::Map;
@@ -126,8 +126,11 @@ impl Player {
             );
             padding_rect.draw(hex!("#ff0000", 128));
 
-            let selected_rect =
-                Map::center_pos_to_rect(padding_rect.center().as_uvec2(), width, height);
+            let mut selected_rect = padding_rect;
+            selected_rect.expand_center(
+                -1.0 * (padding as f32 * SQUARE_SIZE),
+                -1.0 * (padding as f32 * SQUARE_SIZE),
+            );
 
             let mp = selected_rect.center();
             draw_texture_center(selected.texture().texture(), mp.x, mp.y);
